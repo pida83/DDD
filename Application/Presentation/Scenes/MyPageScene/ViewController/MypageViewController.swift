@@ -36,14 +36,6 @@ public class MypageViewController: UIViewController {
         // 실시간 채널
         viewModel.outModel.subscribe(onNext: { data in
             self.layoutModel.setTextFieldData(data: data)
-//            self.layoutModel.textField.text = "\(data.dps)"
-//            print(data)
-//            data.upCnt
-//            data.downCnt
-//            data.dps
-//            data.sum
-//            data.lastPrice
-//            print(data.upCnt)
         }).disposed(by: disposeBag)
         
         

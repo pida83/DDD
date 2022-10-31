@@ -156,9 +156,15 @@ public class DefaultMypageViewModel: MypageViewModel {
     // MARK: - OUTPUT
     public init() {
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [weak self] _ in
+            if self!.data.count > 7 {
+                self!.data.removeFirst()
+            }
+            
             self?.counter.appendDps()
             self?.data.append(self!.counter)
             self!.counter.resetState()
+            
+            
         })
     }
 }
