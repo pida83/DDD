@@ -25,10 +25,14 @@ public class MypageViewController: UIViewController {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         bind(to: viewModel)
         viewModel.viewDidLoad()
         layoutModel.viewDidLoad(parent: self.view)
+        layoutModel.action = MypageAction(cancelAction: self.cancelAction, confirmAction: self.confirmAction)
+        print(layoutModel.action)
+//        layoutModel.coinPicker.delegate = self
+//        layoutModel.coinPicker.dataSource = self
     }
     
     func bind(to viewModel: MypageViewModel) {
@@ -40,9 +44,13 @@ public class MypageViewController: UIViewController {
         
         
         // 테이블 채널 1초 딜레이
-        viewModel.didUpdate.subscribe(onNext: {[weak self] _ in
+        viewModel.output_didUpdate.subscribe(onNext: {[weak self] _ in
             self?.layoutModel.mainTable.reloadData()
             self?.layoutModel.mainTable.scrollToBottom(animated: false)
+        }).disposed(by: disposeBag)
+        
+        viewModel.output_didUpdateList.subscribe(onNext: {[weak self] _ in
+            self?.layoutModel.coinPicker.reloadAllComponents()
         }).disposed(by: disposeBag)
     }
     
@@ -51,7 +59,25 @@ public class MypageViewController: UIViewController {
         
         layoutModel.mainTable.delegate = self
         layoutModel.mainTable.dataSource = self
+    }
+    
+    
+    public func cancelAction(){
+        self.view.resignFirstResponder()
+        self.layoutModel.parentView.resignFirstResponder()
+        self.layoutModel.inputView.resignFirstResponder()
+        self.view.endEditing(true)
+        self.layoutModel.parentView.endEditing(true)
+        self.layoutModel.inputView.endEditing(true)
         
+    }
+    
+    public func confirmAction() {
+        if self.layoutModel.inputView.hasText,  let name = self.layoutModel.inputView.text {
+            self.viewModel.didInputSelected(name: name)
+        } else {
+            self.cancelAction()
+        }
     }
 }
 
@@ -91,3 +117,29 @@ extension MypageViewController: UITableViewDelegate {
     }
     
 }
+
+
+extension MypageViewController: UIPickerViewDelegate, UIPickerViewDataSource {
+    public func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        1
+    }
+    
+    public func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return viewModel.lists.count
+    }
+    
+    public func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return viewModel.lists[row]
+    }
+       
+    public func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        print(viewModel.lists[row])
+        self.viewModel.didInputSelected(name: viewModel.lists[row])
+    }
+    
+    public func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
+        return 50
+    }
+    
+}
+    

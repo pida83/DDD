@@ -11,6 +11,7 @@ import Starscream
 import SwiftyJSON
 import RxSwift
 import RxCocoa
+import Alamofire
 
 
 @propertyWrapper
@@ -108,6 +109,8 @@ public struct StreamModel {
 
 public protocol MypageViewModelInput {
     func viewDidLoad()
+    
+    func didInputSelected(name: String)
 }
 
 public protocol MypageViewModelOutput {
@@ -117,8 +120,11 @@ public protocol MypageViewModelOutput {
     var output_dps : BehaviorSubject<Int> {get set}
     var output_sum : BehaviorSubject<Int> {get set}
     var output_dpsAverage: BehaviorSubject<[Int]> {get set}
-    var didUpdate : PublishSubject<Bool> {get set}
+    var output_didUpdate : PublishSubject<Bool> {get set}
+    var output_didUpdateList : PublishSubject<Bool>{get set}
+    
     var data: [StreamModel] {get set}
+    var lists : [String] {get set}
 }
 
 public protocol MypageViewModel: MypageViewModelInput, MypageViewModelOutput {
@@ -128,23 +134,41 @@ public protocol MypageViewModel: MypageViewModelInput, MypageViewModelOutput {
 
 public class DefaultMypageViewModel: MypageViewModel {
     
-    public var outModel: PublishSubject<StreamModel>         = .init()
-    public var output_upCnt: BehaviorSubject<Int>          = .init(value: 0)
-    public var output_downCnt: BehaviorSubject<Int>        = .init(value: 0)
-    public var output_dps: BehaviorSubject<Int>            = .init(value: 0)
-    public var output_sum: BehaviorSubject<Int>            = .init(value: 0)
+    
+    
+    
+    public var outModel: PublishSubject<StreamModel>      = .init()
+    public var output_upCnt: BehaviorSubject<Int>         = .init(value: 0)
+    public var output_downCnt: BehaviorSubject<Int>       = .init(value: 0)
+    public var output_dps: BehaviorSubject<Int>           = .init(value: 0)
+    public var output_sum: BehaviorSubject<Int>           = .init(value: 0)
     public var output_dpsAverage: BehaviorSubject<[Int]>  = .init(value: [])
-    public var didUpdate : PublishSubject<Bool> = .init()
+    public var output_didUpdate : PublishSubject<Bool>           = .init()
+    public var output_didUpdateList : PublishSubject<Bool>           = .init()
+    
+    
+    public var lists : [String] = .init() {
+        didSet {
+            output_didUpdateList.onNext(true)
+        }
+    }
+
+
     
     public var data: [StreamModel] = [] {
         didSet {
-            didUpdate.onNext(true)
+            output_didUpdate.onNext(true)
         }
-        
     }
     
     
     var counter = StreamModel()
+    
+    public var selected: String = "btcusdt" {
+        didSet {
+            self.reconnect()
+        }
+    }
     
     var socket1: WebSocket!
     var socket2: WebSocket!
@@ -163,16 +187,42 @@ public class DefaultMypageViewModel: MypageViewModel {
             self?.counter.appendDps()
             self?.data.append(self!.counter)
             self!.counter.resetState()
-            
-            
         })
+        
+        
+        let req = AF.request("https://api1.binance.com/api/v3/ticker/24hr?type=mini")
+            req.responseData { [weak self] data in
+                if let data = data.data , let json = try? JSON(data: data) {
+                    let ticket = json.filter{$1["symbol"].stringValue.contains("USDT")}.map{ $1["symbol"].stringValue.lowercased()}
+                    self?.lists = ticket
+                }
+            }
     }
 }
 
 // MARK: - INPUT. View event methods
 extension DefaultMypageViewModel {
+    
     public func viewDidLoad() {
-        var request = URLRequest(url: URL(string: "wss://stream.binance.com:9443/ws/btcusdt@trade")!)
+        var request = URLRequest(url: URL(string: "wss://stream.binance.com:9443/ws/\(self.selected)@trade")!)
+            request.timeoutInterval = 5
+            socket2 = WebSocket(request: request)
+            socket2.delegate = self
+            socket2.connect()
+        
+        
+        
+        
+    }
+    
+    public func didInputSelected(name: String) {
+        self.selected = name
+    }
+    
+    public func reconnect() {
+        socket2.disconnect()
+        
+        var request = URLRequest(url: URL(string: "wss://stream.binance.com:9443/ws/\(self.selected)@trade")!)
             request.timeoutInterval = 5
             socket2 = WebSocket(request: request)
             socket2.delegate = self
@@ -189,6 +239,7 @@ extension DefaultMypageViewModel : WebSocketDelegate {
                 print("websocket is connected: \(headers)")
             case .disconnected(let reason, let code):
                 isConnected = false
+                self.socket2.connect()
                 print("websocket is disconnected: \(reason) with code: \(code)")
             case .text(let string):
                 progressJSON(JSON(parseJSON: string))
@@ -202,9 +253,11 @@ extension DefaultMypageViewModel : WebSocketDelegate {
                 break
             case .reconnectSuggested(_):
                 print("recon")
+            self.socket2.connect()
                 break
             case .cancelled:
                 isConnected = false
+            self.socket2.connect()
             case .error(let error):
                 isConnected = false
                 self.socket2.connect()

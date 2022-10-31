@@ -9,8 +9,27 @@
 import UIKit
 import Then
 import SnapKit
+import RxSwift
+import RxCocoa
+import RxGesture
+
+class MypageAction {
+    var cancelAction : (()-> Void)
+    var confirmAction : (()-> Void)
+    init(cancelAction: @escaping () -> Void, confirmAction: @escaping () -> Void) {
+        self.cancelAction = cancelAction
+        self.confirmAction = confirmAction
+    }
+    
+    deinit {
+        print("deinit:::::::::::")
+    }
+}
 
 public struct MypageLayoutModel {
+    
+    
+    var disposeBag: DisposeBag = .init()
     
     var parentView: UIView = UIView(frame: .zero).then{
         $0.backgroundColor = CloneProjectAsset.defaultColor.color
@@ -21,6 +40,25 @@ public struct MypageLayoutModel {
         $0.register(MypageTableCell.self, forCellReuseIdentifier: MypageTableCell.identifier)
     }
     
+    var inputView : UITextField = .init(frame: .zero).then{
+        $0.text = "btc"
+        $0.backgroundColor = .black
+        $0.textColor = .white
+        $0.textAlignment = .center
+    }
+    
+    var confirm: UIView = .init(frame:.zero).then{
+        $0.backgroundColor = .blue
+        $0.frame = .init(x: 0, y: 0, width: 70, height: 40)
+    }
+    
+    var cancel: UIView = .init(frame:.zero).then{
+        $0.backgroundColor = .gray
+        $0.frame = .init(x: 0, y: 0, width: 70, height: 40)
+    }
+    
+    var coinPicker : UIPickerView = .init(frame: .zero)
+    
     var textField: UITextField = .init(frame: .zero).then{
         $0.backgroundColor = .black
         $0.textColor = .white
@@ -28,6 +66,9 @@ public struct MypageLayoutModel {
     }
     
     let TABLE_ROW_PER_PAGE : CGFloat = 5
+    
+    
+    var action : MypageAction!
     
     public init() {
         
@@ -37,7 +78,7 @@ public struct MypageLayoutModel {
     func viewDidLoad(parent: UIView) {
         setLayout(parent: parent)
         setConstraint(parent: parent)
-        
+        bind()
     }
     
 
@@ -45,6 +86,10 @@ public struct MypageLayoutModel {
         parent.addSubview(parentView)
         parentView.addSubview(self.mainTable)
         parentView.addSubview(self.textField)
+//        parentView.addSubview(self.coinPicker)
+        parentView.addSubview(self.cancel)
+        parentView.addSubview(self.confirm)
+        parentView.addSubview(self.inputView)
     }
     
     func setTextFieldData(data: StreamModel) {
@@ -77,7 +122,47 @@ public struct MypageLayoutModel {
             $0.bottom.equalToSuperview()
         }
         
+        cancel.snp.makeConstraints{
+            $0.width.equalTo(70)
+            $0.height.equalTo(40)
+            $0.left.top.equalToSuperview().inset(10)
+        }
         
+        confirm.snp.makeConstraints{
+            $0.width.equalTo(70)
+            $0.height.equalTo(40)
+            $0.right.top.equalToSuperview().inset(10)
+        }
+        inputView.snp.makeConstraints{
+            $0.width.equalToSuperview()
+            $0.height.equalTo(150)
+            $0.bottom.equalToSuperview()
+        }
+//        coinPicker.snp.makeConstraints{
+//            $0.width.bottom.equalToSuperview()
+//            $0.height.equalTo(200)
+//        }
+    }
+    
+    func bind() {
+        self.confirm.rx.tapGesture()
+            .throttle(.microseconds(500), latest: false, scheduler: MainScheduler.instance)
+            .when(.recognized)
+            .subscribe(onNext: { _ in
+                // 약한참조 처리
+                self.action.confirmAction()
+                
+            })
+            .disposed(by: disposeBag)
+        
+        self.cancel.rx.tapGesture()
+            .throttle(.microseconds(500), latest: false, scheduler: MainScheduler.instance)
+            .when(.recognized)
+            .subscribe(onNext: {  _ in
+                // 약한참조 처리
+                self.action.cancelAction()
+            })
+            .disposed(by: disposeBag)
         
     }
 }

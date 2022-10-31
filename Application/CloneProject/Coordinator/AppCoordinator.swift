@@ -67,7 +67,7 @@ public final class AppCoordinator: Coordinator {
         hoodCoordinator.start()
         aroundCoordinator.start()
         mypageCoordinator.start()
-        coordinator.selectedIndex = 2
+        coordinator.selectedIndex = 4
     }
 }
 

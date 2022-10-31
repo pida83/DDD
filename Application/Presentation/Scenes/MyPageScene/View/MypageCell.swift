@@ -82,7 +82,6 @@ class MypageTableCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        print("this")
         backgroundColor = .clear
         layoutModel.viewDidLoad(parent: contentView)
     }
