@@ -76,8 +76,11 @@ public class CommonTabbarController: UITabBarController {
         bind()
         
         self.tabBar.tintColor       = .white
-        self.tabBar.barTintColor    = .white
-        self.tabBar.backgroundColor = CloneProjectAsset.defaultColor.color
+        self.tabBar.barTintColor    = .none
+        // 반투명 제거
+        self.tabBar.isTranslucent = false
+        self.tabBar.backgroundColor = .darkGray
+        
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -115,7 +118,7 @@ public class CommonTabbarController: UITabBarController {
         
         let selected = TabItem(rawValue: self.selectedIndex)
         var tabBarHeight = self.tabBar.frame.size.height;
-        print(tabBarHeight)
+//        print(tabBarHeight)
         
 
 //        self.mainMenu.isHidden = !self.mainMenu.isHidden
@@ -125,21 +128,21 @@ public class CommonTabbarController: UITabBarController {
 extension CommonTabbarController: UITabBarControllerDelegate {
     
     public override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
-        print(#function, item)
+//        print(#function, item)
     }
     
     // 변경 전 뷰컨과 인덱
     public func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         let selected = TabItem(rawValue: tabBarController.selectedIndex)
         let navi = viewController as? UINavigationController
-        print("Should select viewController:  \(navi?.topViewController) \(tabBarController.selectedIndex) \(selected?.title ?? "none")")
+//        print("Should select viewController:  \(navi?.topViewController) \(tabBarController.selectedIndex) \(selected?.title ?? "none")")
            return true
        }
     
     public func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
         let selected = TabItem(rawValue: tabBarController.selectedIndex)
         let navi = viewController as? UINavigationController
-        print("did select viewController: \(navi?.topViewController) \(viewController) \(tabBarController.selectedIndex) \(selected?.title ?? "none")")
+//        print("did select viewController: \(navi?.topViewController) \(viewController) \(tabBarController.selectedIndex) \(selected?.title ?? "none")")
     }
     
 }

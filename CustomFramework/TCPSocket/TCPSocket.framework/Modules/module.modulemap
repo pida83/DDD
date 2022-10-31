@@ -1,0 +1,11 @@
+framework module TCPSocket {
+  umbrella header "TCPSocket.h"
+
+  export *
+  module * { export * }
+}
+
+module TCPSocket.Swift {
+  header "TCPSocket-Swift.h"
+  requires objc
+}

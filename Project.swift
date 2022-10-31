@@ -32,11 +32,11 @@ enum CloneProject: String, CaseIterable {
         case .project:
             fallthrough
         default :
-//            let cases = CloneModule.allCases.map{
-//                return TargetDependency.target(name: $0.value)
-//            }
+            let cases = CloneModule.allCases.map{
+                return TargetDependency.target(name: $0.value)
+            }
             
-            return makeProjectTarget(name: projectName, bundleID: bundleID, platform: platform, path: projectPath, dependencies: [.rxSwift, .rxCocoa, .rxGesture, .lottie, .rxRelay, .rxDataSources, .then, .snapKit, .swiftyJson, .toast, .alamofire, .googleGroup, .moya, .naverGroup, .realm, .dropDown, .webp, .sdImage])
+            return makeProjectTarget(name: projectName, bundleID: bundleID, platform: platform, path: projectPath, dependencies: [.tcpSocket, .rxSwift, .rxCocoa, .rxGesture, .lottie, .rxRelay, .rxDataSources, .then, .snapKit, .swiftyJson, .toast, .alamofire, .googleGroup, .moya, .naverGroup, .realm, .dropDown, .webp, .sdImage, .protoBuffer, .starScream, .grpc, .sChart])
         }
     }
     
@@ -75,7 +75,7 @@ enum CloneProject: String, CaseIterable {
 
 // 프레임 워크는 그냥 이렇게
 enum CloneModule: String, CaseIterable {
-    case domain , shared, presentation, repository, service , util
+    case tcpSocket = "TCPSocket"
     
     var value : String {
         return self.rawValue.capitalized
@@ -83,17 +83,7 @@ enum CloneModule: String, CaseIterable {
     
     var target : [Target] {
         switch self {
-        case .shared:
-            fallthrough
-        case .domain:
-            fallthrough
-        case .presentation:
-            return makeFramework(name: self.value, bundleID: bundleID, platform: platform, path: projectPath, dependencies:[], useResources: true)
-        case .repository:
-            fallthrough
-        case .service:
-            fallthrough
-        case .util:
+        case .tcpSocket:
             fallthrough
         default:
             return makeFramework(name: self.value, bundleID: bundleID, platform: platform, path: projectPath, dependencies: [])
@@ -105,21 +95,22 @@ enum CloneModule: String, CaseIterable {
                 platform: platform,
                 product: .framework,
                 bundleId: "\(bundleID).\(name)",
-                 deploymentTarget: .iOS(targetVersion: "13.0", devices: [.ipad, .iphone]),
+//                 deploymentTarget: .iOS(targetVersion: "13.0", devices: [.ipad, .iphone]),
                 infoPlist: infoList,
-                sources: ["\(path)/\(name)/Sources/**"],
-                resources: useResources ? ["\(path)/\(name)/Resources/**"] : [],
+                sources: ["CustomFramework/\(name)/**"],
+                resources: useResources ? ["CustomFramework/\(name)/Resources/**"] : [],
                 dependencies: dependencies)
-        let tests = Target(name: "\(name)Tests",
-                platform: platform,
-                product: .unitTests,
-                           bundleId: "\(bundleID).\(name)Tests",
-                           deploymentTarget: .iOS(targetVersion: "13.0", devices: [.ipad, .iphone]),
-                infoPlist: infoList,
-                sources: ["\(path)/\(name)/Tests/**"],
-                resources: [],
-                dependencies: [.target(name: name)])
-        return [sources, tests]
+//        let tests = Target(name: "\(name)Tests",
+//                platform: platform,
+//                product: .unitTests,
+//                           bundleId: "\(bundleID).\(name)Tests",
+//                           deploymentTarget: .iOS(targetVersion: "13.0", devices: [.ipad, .iphone]),
+//                infoPlist: infoList,
+//                sources: ["\(path)/\(name)/Tests/**"],
+//                resources: [],
+//                dependencies: [.target(name: name)])
+//        return [sources, tests]
+        return [sources]
     }
     
     
@@ -150,8 +141,12 @@ public extension TargetDependency {
     static let dropDown: TargetDependency = .external(name: "DropDown")
     static let webp: TargetDependency = .external(name: "SDWebImageWebPCoder")
     static let sdImage: TargetDependency = .external(name: "SDWebImage")
-    
-    
+    static let protoBuffer: TargetDependency = .external(name: "SwiftProtobuf")
+//    static let socketIO: TargetDependency = .external(name: "SocketIO")
+    static let tcpSocket: TargetDependency = .framework(path: "CustomFramework/TCPSocket/TCPSocket.framework")
+    static let starScream: TargetDependency = .external(name: "Starscream")
+    static let grpc: TargetDependency = .external(name: "GRPC")
+    static let sChart: TargetDependency = .external(name: "GRPC")
     
 }
 

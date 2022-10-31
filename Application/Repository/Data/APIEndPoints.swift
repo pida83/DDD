@@ -24,17 +24,19 @@ public enum APIEndPointService {
 
 extension APIEndPointService: TargetType {
     public var baseURL: URL {
-        return URL(string: "http://211.252.37.224/rest")!
+//        return URL(string: "http://211.252.37.224/rest")!
+         return URL(string: "http://localhost:3000")!
+    
     }
     public var path: String {
         switch self {
-            case .list: return "/parking"
+            case .list: return ""
         }
     }
 
     public var method: Moya.Method {
         switch self {
-        case .list : return .get
+        case .list : return .post
         }
     }
 
@@ -47,7 +49,24 @@ extension APIEndPointService: TargetType {
       public var task: Task {
           switch self {
           case .list(let param):
-              return .requestParameters(parameters: param, encoding: URLEncoding.queryString)
+              
+              var info = BookInfo()
+              info.id = 1
+              info.title = "test"
+              info.author = "tat1"
+              do {
+                  let binaryData: Data = try info.serializedData()
+                  print("sended")
+                return .requestData(binaryData)
+                  
+              } catch let err {
+                  print("error")
+                  return .requestParameters(parameters: param, encoding: URLEncoding.httpBody)
+              }
+              
+
+
+              
           }
           
       }

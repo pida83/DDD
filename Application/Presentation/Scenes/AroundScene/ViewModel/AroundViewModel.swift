@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Alamofire
 
 public protocol AroundViewModelInput {
     func viewDidLoad()

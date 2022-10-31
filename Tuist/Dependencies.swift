@@ -27,7 +27,12 @@ let dependencies = Dependencies(
             .realm,
             .webp,
             .sdImage,
-            .dropDown
+            .dropDown,
+            .protoBuffer,
+//            .socketIO,
+            .starScream,
+            .grpc,
+            .sChart
     ],
     platforms: [.iOS]
 )
@@ -57,5 +62,11 @@ public extension Package {
     static let naverGroup: Package  = .local(path: .relativeToRoot("LocalPackages/NMapsMapa"))
     static let realm: Package  = .local(path: .relativeToRoot("LocalPackages/RealmSwiftPack"))
     
-    
+    static let protoBuffer: Package      = .remote(url: "https://github.com/apple/swift-protobuf.git", requirement: .upToNextMajor(from: "1.6.0"))
+
+    static let socketIO: Package      = .remote(url: "https://github.com/socketio/socket.io-client-swift", requirement: .upToNextMinor(from: "15.0.0"))
+    static let starScream: Package      = .remote(url: "https://github.com/daltoniam/Starscream.git", requirement: .upToNextMajor(from: "4.0.0"))
+    static let grpc: Package      = .remote(url: "https://github.com/grpc/grpc-swift.git", requirement: .upToNextMajor(from: "1.9.0"))
+    static let sChart: Package      = .remote(url: "https://github.com/danielgindi/Charts.git", requirement: .upToNextMajor(from: "4.1.0"))
+
 }

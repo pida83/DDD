@@ -82,6 +82,8 @@ extension AppCoordinator {
         let navigation = UINavigationController()
             navigation.setToolbarHidden(true, animated: false)
             navigation.setNavigationBarHidden(true, animated: false)
+        navigation.navigationBar.isTranslucent = false
+        
         return navigation
     }
 }

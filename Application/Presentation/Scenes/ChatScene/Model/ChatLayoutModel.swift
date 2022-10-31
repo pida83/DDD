@@ -20,26 +20,41 @@ public struct ChatLayoutModel {
         $0.backgroundColor = .yellow
     }
     
+    var sendBtn: UIButton = .init(frame: .zero).then{
+        $0.setTitle("sendData", for: .normal)
+    }
+    
     public init() {
         
     }
     
     
     func viewDidLoad(parent: UIView) {
-        self.setLayout(parent: parent)
+        setDefault(parent: parent)
+        
+        self.setLayout()
+        self.setConstraint()
     }
     
-
-    func setLayout(parent: UIView) {
-        parent.addSubview(parentView)
-        setConstraint(parent: parent)
-    }
-    
-    
-    
-    func setConstraint( parent : UIView) {
+    func setDefault(parent: UIView) {
+        
+        parent.addSubview(parentView)    
         parentView.snp.makeConstraints{
             $0.edges.equalTo(parent.safeAreaLayoutGuide)
+        }
+    }
+
+    func setLayout() {
+        parentView.addSubview(sendBtn)
+    }
+    
+    
+    
+    func setConstraint() {
+        sendBtn.snp.makeConstraints{
+            $0.width.equalTo(50)
+            $0.height.equalTo(30)
+            $0.center.equalToSuperview()
         }
         
     }

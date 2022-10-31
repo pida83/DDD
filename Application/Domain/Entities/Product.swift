@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftProtobuf
 
 public struct Product : Codable , Equatable, Identifiable {
     public typealias Identifier = String
