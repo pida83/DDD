@@ -30,7 +30,7 @@ public class MypageViewController: UIViewController {
         viewModel.viewDidLoad()
         layoutModel.viewDidLoad(parent: self.view)
         layoutModel.action = MypageAction(cancelAction: self.cancelAction, confirmAction: self.confirmAction)
-        print(layoutModel.action)
+        
 //        layoutModel.coinPicker.delegate = self
 //        layoutModel.coinPicker.dataSource = self
     }
@@ -39,7 +39,7 @@ public class MypageViewController: UIViewController {
         
         // 실시간 채널
         viewModel.outModel.subscribe(onNext: { data in
-            self.layoutModel.setTextFieldData(data: data)
+            self.layoutModel.setTextFieldData(data: data, name: viewModel.selected)
         }).disposed(by: disposeBag)
         
         
@@ -49,6 +49,7 @@ public class MypageViewController: UIViewController {
             self?.layoutModel.mainTable.scrollToBottom(animated: false)
         }).disposed(by: disposeBag)
         
+        // 피커뷰
         viewModel.output_didUpdateList.subscribe(onNext: {[weak self] _ in
             self?.layoutModel.coinPicker.reloadAllComponents()
         }).disposed(by: disposeBag)
@@ -56,28 +57,72 @@ public class MypageViewController: UIViewController {
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        addKeyboardNotifications()
         layoutModel.mainTable.delegate = self
         layoutModel.mainTable.dataSource = self
     }
     
+    public override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        removeKeyboardNotifications()
+    }
+    
+    /* ---------------------------------------------------
+     * Keyboard 노출 감지하는 NotificationCenter Observer 추가
+     * ---------------------------------------------------- */
+    func addKeyboardNotifications(){
+        // 키보드가 나타날 때 앱에 알리고 keyboardWillShow() 메소드를 실행하는 Observer를 추가한다.
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification , object: nil)
+        // 키보드가 사라질 때 앱에 알리고 keyboardWillHide() 메소드를 실행하는 Observer를 추가한다.
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        
+    }
+
+    /* ---------------------------------------------------
+     * Keyboard 노출 감지하는 NotificationCenter Observer 제거
+     * ---------------------------------------------------- */
+    func removeKeyboardNotifications(){
+        // 키보드가 나타날 때 앱에게 알리는 Observer를 제거한다.
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification , object: nil)
+        // 키보드가 사라질 때 앱에게 알리는 Observer를 제거한다.
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    // 키보드가 나타나는 UIResponder.keyboardWillShowNotification 알림 수신
+    @objc func keyboardWillShow(_ noti: NSNotification){
+        // 키보드의 높이만큼 웹뷰 영역을 올려준다.
+        if let keyboardFrame: NSValue = noti.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+            let keyboardRectangle = keyboardFrame.cgRectValue
+            let keyboardHeight  = keyboardRectangle.height
+//            self.layoutModel.mainTable.transform = .init(translationX: 0, y: -(keyboardHeight - 50))
+            self.layoutModel.inputView.transform = .init(translationX: 0, y: -(keyboardHeight - 50))
+            self.layoutModel.confirm.transform = .init(translationX: 0, y: -(keyboardHeight - 50))
+            self.layoutModel.cancel.transform = .init(translationX: 0, y: -(keyboardHeight - 50))
+            
+//            self.webViewMain.frame.origin.y -= (keyboardHeight - 50)    // 툴바높이 50 제외
+        }
+    }
+    // 키보드가 사라지는 UIResponder.keyboardWillHideNotification 알림 수신
+    @objc func keyboardWillHide(_ noti: NSNotification){
+        // 키보드의 높이만큼 웹뷰 영역을 내려준다.
+        if let keyboardFrame: NSValue = noti.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+            let keyboardRectangle = keyboardFrame.cgRectValue
+            let keyboardHeight  = keyboardRectangle.height
+            self.layoutModel.inputView.transform = .identity
+            self.layoutModel.confirm.transform = .identity
+            self.layoutModel.cancel.transform = .identity
+        }
+    }
     
     public func cancelAction(){
-        self.view.resignFirstResponder()
-        self.layoutModel.parentView.resignFirstResponder()
-        self.layoutModel.inputView.resignFirstResponder()
         self.view.endEditing(true)
-        self.layoutModel.parentView.endEditing(true)
-        self.layoutModel.inputView.endEditing(true)
-        
     }
     
     public func confirmAction() {
         if self.layoutModel.inputView.hasText,  let name = self.layoutModel.inputView.text {
             self.viewModel.didInputSelected(name: name)
-        } else {
-            self.cancelAction()
         }
+        self.cancelAction()
     }
 }
 
@@ -99,7 +144,7 @@ extension MypageViewController: UITableViewDataSource {
         let row        = indexPath.row
         let cellHeight = tableView.frame.height / layoutModel.TABLE_ROW_PER_PAGE
         
-        cell.setData(data: data, height: cellHeight)
+        cell.setData(data: data, name: viewModel.selected)
         return cell
     }
 }

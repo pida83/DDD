@@ -20,7 +20,7 @@ struct MypageCellLayoutModel {
         $0.backgroundColor = .clear
         $0.font = UIFont.systemFont(ofSize: 18)
         $0.textColor = .white
-        $0.textAlignment = .center
+        $0.textAlignment = .left
     }
     
 //    let priceLabel: UILabel    = .init(frame: .zero).then{
@@ -100,17 +100,36 @@ class MypageTableCell: UITableViewCell {
         
     }
     
-    func setData(data: StreamModel, height: CGFloat) {
+    func setData(data: StreamModel, name: String) {
 //        layoutModel.cellHeight = height
         
         model = data
         let sum       = "\(data.sum)".leftPadding(toLength: 5, withPad: "  ")
         let dps       = "\(data.dps)".leftPadding(toLength: 5, withPad: "  ")
         let average   = "\(data.average)".leftPadding(toLength: 5, withPad: "  ")
-        let howStrong = "\(data.howStrong)".leftPadding(toLength: 5, withPad: "  ")
-        let check     = "\(data.sum > data.average ? "+" : "")"
+        let strength   = String(repeating: "*", count: data.strength).leftPadding(toLength: 5, withPad: "  ")
         
-        layoutModel.commentLabel.text = "ud : [\(sum)] dp : [\(dps)] av: [\(average)] [\(howStrong)] [\(check)]"
+        let check     = "\(data.sum > data.average ? "+" : "")"
+        let outputText = "\(name) - ud : [\(sum)] dp : [\(dps)] av: [\(average)] [\(strength)] [\(check)]"
+        
+        layoutModel.commentLabel.text = outputText
+        layoutModel.commentLabel.textColor = data.sum < 1 ? .red : .blue
+        var color: UIColor = .clear
+        
+        if data.strength > 3 || check == "+" {
+            if data.sum < 1 {
+                color = .red
+            } else {
+                color = .blue
+            }
+        }
+
+        
+        self.contentView.layer.borderColor = color.cgColor
+        self.contentView.layer.borderWidth = 2
+        
+//        backgroundColor = color
+        
 //        layoutModel.titleLabel.text   = model.comment
 //        layoutModel.commentLabel.text = model.comment
 //        layoutModel.priceLabel.text   = model.comment + model.comment + model.comment + model.comment + model.comment + model.comment + model.comment

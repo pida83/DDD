@@ -14,97 +14,6 @@ import RxCocoa
 import Alamofire
 
 
-@propertyWrapper
-struct FloorNumber {
-    public init(wrappedValue initialValue: Int) {
-        wrappedValue = Int(floor(Double(initialValue)))
-    }
-    
-    public var wrappedValue: Int
-}
-
-//public struct Archive<ValueType> {
-//    public init(wrappedValue initialValue: ValueType) {
-//        wrappedValue = initialValue
-//    }
-//
-//    public var wrappedValue: ValueType
-//}
-
-
-public struct StreamModel {
-    @FloorNumber var upCnt : Int        = 0
-    @FloorNumber var downCnt : Int      = 0
-    @FloorNumber var dps : Int          = 0
-    @FloorNumber var sum : Int          = 0
-                 var dpsDatas : [Int] = []
-    @FloorNumber var average: Int = 0
-    @FloorNumber var lastPrice: Int = 0
-     var howStrong: String = ""
-    
-    mutating func update(data: JSON) -> StreamModel {
-        self.dps = self.dps + 1
-        
-        self.howStrong = ""
-        
-        let isMoreExpenciveThan : Bool = data["p"].intValue > self.lastPrice
-        if isMoreExpenciveThan {
-            upCnt += 1
-        } else {
-            downCnt += 1
-        }
-        
-        if data["m"].boolValue {
-            sum -= 1
-            if !isMoreExpenciveThan {
-                sum -= 1
-            }
-        }else {
-            sum += 1
-            if isMoreExpenciveThan {
-                sum += 1
-            }
-        }
-        self.lastPrice  = data["p"].intValue
-        
-        if dps > average {
-            self.howStrong.append("*")
-        }
-        
-        if dps > average * 2 {
-            self.howStrong.append("*")
-        }
-        
-        if dps > average * 3 {
-            self.howStrong.append("*")
-        }
-        
-        if dps > average * 4 {
-            self.howStrong.append("*")
-        }
-        
-        return self
-        
-    }
-    
-    mutating func appendDps() {
-        self.dpsDatas.append(self.dps)
-        
-        if dpsDatas.count > 10 {
-            dpsDatas.removeFirst()
-        }
-        
-        average = dpsDatas.reduce(0, +) / Int(dpsDatas.count)
-        
-    }
-    
-    mutating func resetState(){
-        upCnt   = 0
-        downCnt = 0
-        dps     = 0
-        sum     = 0
-    }
-}
 
 
 public protocol MypageViewModelInput {
@@ -115,11 +24,7 @@ public protocol MypageViewModelInput {
 
 public protocol MypageViewModelOutput {
     var outModel: PublishSubject<StreamModel> {get set}
-    var output_upCnt: BehaviorSubject<Int> {get set}
-    var output_downCnt: BehaviorSubject<Int> {get set}
-    var output_dps : BehaviorSubject<Int> {get set}
-    var output_sum : BehaviorSubject<Int> {get set}
-    var output_dpsAverage: BehaviorSubject<[Int]> {get set}
+    
     var output_didUpdate : PublishSubject<Bool> {get set}
     var output_didUpdateList : PublishSubject<Bool>{get set}
     
@@ -128,21 +33,12 @@ public protocol MypageViewModelOutput {
 }
 
 public protocol MypageViewModel: MypageViewModelInput, MypageViewModelOutput {
-    
-    
+    var selected: String {get set}
 }
 
 public class DefaultMypageViewModel: MypageViewModel {
     
-    
-    
-    
     public var outModel: PublishSubject<StreamModel>      = .init()
-    public var output_upCnt: BehaviorSubject<Int>         = .init(value: 0)
-    public var output_downCnt: BehaviorSubject<Int>       = .init(value: 0)
-    public var output_dps: BehaviorSubject<Int>           = .init(value: 0)
-    public var output_sum: BehaviorSubject<Int>           = .init(value: 0)
-    public var output_dpsAverage: BehaviorSubject<[Int]>  = .init(value: [])
     public var output_didUpdate : PublishSubject<Bool>           = .init()
     public var output_didUpdateList : PublishSubject<Bool>           = .init()
     
@@ -153,7 +49,11 @@ public class DefaultMypageViewModel: MypageViewModel {
         }
     }
 
-
+    public var selected : String  = "btc" {
+        didSet {
+            self.reconnect()
+        }
+    }
     
     public var data: [StreamModel] = [] {
         didSet {
@@ -164,11 +64,6 @@ public class DefaultMypageViewModel: MypageViewModel {
     
     var counter = StreamModel()
     
-    public var selected: String = "btcusdt" {
-        didSet {
-            self.reconnect()
-        }
-    }
     
     var socket1: WebSocket!
     var socket2: WebSocket!
@@ -204,29 +99,20 @@ public class DefaultMypageViewModel: MypageViewModel {
 extension DefaultMypageViewModel {
     
     public func viewDidLoad() {
-        var request = URLRequest(url: URL(string: "wss://stream.binance.com:9443/ws/\(self.selected)@trade")!)
+        var request = URLRequest(url: URL(string: "wss://stream.binance.com:9443/ws/\(self.selected)usdt@trade")!)
             request.timeoutInterval = 5
             socket2 = WebSocket(request: request)
             socket2.delegate = self
             socket2.connect()
-        
-        
-        
-        
     }
     
     public func didInputSelected(name: String) {
-        self.selected = name
+        self.selected = name.lowercased()
     }
     
     public func reconnect() {
+//        print("recon")
         socket2.disconnect()
-        
-        var request = URLRequest(url: URL(string: "wss://stream.binance.com:9443/ws/\(self.selected)@trade")!)
-            request.timeoutInterval = 5
-            socket2 = WebSocket(request: request)
-            socket2.delegate = self
-            socket2.connect()
     }
 }
 
@@ -276,4 +162,101 @@ extension DefaultMypageViewModel : WebSocketDelegate {
         print(err)
     }
     
+}
+
+
+
+@propertyWrapper
+struct FloorNumber {
+    public init(wrappedValue initialValue: Int) {
+        wrappedValue = Int(floor(Double(initialValue)))
+    }
+    
+    public var wrappedValue: Int
+}
+
+//public struct Archive<ValueType> {
+//    public init(wrappedValue initialValue: ValueType) {
+//        wrappedValue = initialValue
+//    }
+//
+//    public var wrappedValue: ValueType
+//}
+
+
+public struct StreamModel {
+    @FloorNumber var upCnt : Int        = 0
+    @FloorNumber var downCnt : Int      = 0
+    @FloorNumber var dps : Int          = 0
+    @FloorNumber var sum : Int          = 0
+                 var dpsDatas : [Int] = []
+    @FloorNumber var average: Int = 0
+    @FloorNumber var lastPrice: Int = 0
+     var strength: Int = 0
+    
+    mutating func addDPS (){
+        self.dps = self.dps + 1
+    }
+    
+    fileprivate mutating func addStrenth() {
+        self.strength = 0
+        if dps > average {
+            self.strength += 1
+        }
+        
+        self.strength = (0...4).reduce(0) { last , next in
+            return dps > average * next ? next : last
+        }
+        
+    }
+    mutating func setUpAndDown(isRaiseUp : Bool) {
+        if isRaiseUp {
+            upCnt += 1
+        } else {
+            downCnt += 1
+        }
+    }
+    
+    fileprivate mutating func setSum(_ isBuyer: Bool, _ isRaiseUp: Bool) {
+        if isBuyer {
+            sum -= !isRaiseUp ? 2 : 1
+        }else {
+            sum += isRaiseUp ? 2 : 1
+        }
+    }
+    
+    mutating func update(data: JSON) -> StreamModel {
+        addDPS()
+        
+        addStrenth()
+        
+        let isRaiseUp = data["p"].intValue > self.lastPrice
+        
+        setUpAndDown(isRaiseUp: isRaiseUp)
+        
+        setSum(data["m"].boolValue, isRaiseUp)
+        
+        self.lastPrice  = data["p"].intValue
+        
+        return self
+        
+    }
+    
+    mutating func appendDps() {
+        self.dpsDatas.append(self.dps)
+        
+        if dpsDatas.count > 10 {
+            dpsDatas.removeFirst()
+        }
+        
+        average = dpsDatas.reduce(0, +) / Int(dpsDatas.count)
+        
+    }
+    
+    mutating func resetState(){
+        upCnt   = 0
+        downCnt = 0
+        dps     = 0
+        sum     = 0
+    }
 }

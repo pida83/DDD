@@ -26,7 +26,7 @@ class MypageAction {
     }
 }
 
-public struct MypageLayoutModel {
+public class MypageLayoutModel {
     
     
     var disposeBag: DisposeBag = .init()
@@ -52,6 +52,23 @@ public struct MypageLayoutModel {
         $0.frame = .init(x: 0, y: 0, width: 70, height: 40)
     }
     
+    var confirmText: UILabel = .init(frame: .zero).then{
+        $0.font = .boldSystemFont(ofSize: 15)
+        $0.textColor = .black
+        $0.backgroundColor = .clear
+        $0.text = "확인"
+        $0.isUserInteractionEnabled = false
+        $0.textAlignment = .center
+    }
+    var cancelText: UILabel = .init(frame: .zero).then{
+        $0.font = .boldSystemFont(ofSize: 15)
+        $0.backgroundColor = .clear
+        $0.textColor = .black
+        $0.text = "취소"
+        $0.isUserInteractionEnabled = false
+        $0.textAlignment = .center
+    }
+    
     var cancel: UIView = .init(frame:.zero).then{
         $0.backgroundColor = .gray
         $0.frame = .init(x: 0, y: 0, width: 70, height: 40)
@@ -68,7 +85,7 @@ public struct MypageLayoutModel {
     let TABLE_ROW_PER_PAGE : CGFloat = 5
     
     
-    var action : MypageAction!
+    var action : MypageAction?
     
     public init() {
         
@@ -87,20 +104,24 @@ public struct MypageLayoutModel {
         parentView.addSubview(self.mainTable)
         parentView.addSubview(self.textField)
 //        parentView.addSubview(self.coinPicker)
+        
+        parentView.addSubview(self.inputView)
         parentView.addSubview(self.cancel)
         parentView.addSubview(self.confirm)
-        parentView.addSubview(self.inputView)
+        confirm.addSubview(confirmText)
+        cancel.addSubview(cancelText)
     }
     
-    func setTextFieldData(data: StreamModel) {
-//        let paddedStr = str.padding(toLength: 20, withPad: " ", startingAt: 0)
+    func setTextFieldData(data: StreamModel, name: String) {
         let sum       = "\(data.sum)".leftPadding(toLength: 5, withPad: "  ")
         let dps       = "\(data.dps)".leftPadding(toLength: 5, withPad: "  ")
         let average   = "\(data.average)".leftPadding(toLength: 5, withPad: "  ")
-        let howStrong = "\(data.howStrong)".leftPadding(toLength: 5, withPad: "  ")
-        let check     = "\(data.sum > data.average ? "+" : "")"
+        let strength   = String(repeating: "*", count: data.strength).leftPadding(toLength: 5, withPad: "  ")
         
-        self.textField.text = "ud : [\(sum)] dp : [\(dps)] av: [\(average)] [\(howStrong)] [\(check)]"
+        let check     = "\(data.sum > data.average ? "+" : "")"
+        let outputText = "\(name) - ud : [\(sum)] dp : [\(dps)] av: [\(average)] [\(strength)] [\(check)]"
+        
+        self.textField.text = outputText
         
     }
     
@@ -125,19 +146,31 @@ public struct MypageLayoutModel {
         cancel.snp.makeConstraints{
             $0.width.equalTo(70)
             $0.height.equalTo(40)
-            $0.left.top.equalToSuperview().inset(10)
+            $0.left.equalToSuperview().offset(10)
+            $0.bottom.equalToSuperview().offset(-100)
         }
         
         confirm.snp.makeConstraints{
             $0.width.equalTo(70)
             $0.height.equalTo(40)
-            $0.right.top.equalToSuperview().inset(10)
+            $0.right.equalToSuperview().offset(-10)
+            $0.bottom.equalToSuperview().offset(-100)
         }
+        
         inputView.snp.makeConstraints{
             $0.width.equalToSuperview()
             $0.height.equalTo(150)
             $0.bottom.equalToSuperview()
         }
+        
+        confirmText.snp.makeConstraints{
+            $0.edges.equalToSuperview()
+        }
+        
+        cancelText.snp.makeConstraints{
+            $0.edges.equalToSuperview()
+        }
+        
 //        coinPicker.snp.makeConstraints{
 //            $0.width.bottom.equalToSuperview()
 //            $0.height.equalTo(200)
@@ -148,9 +181,9 @@ public struct MypageLayoutModel {
         self.confirm.rx.tapGesture()
             .throttle(.microseconds(500), latest: false, scheduler: MainScheduler.instance)
             .when(.recognized)
-            .subscribe(onNext: { _ in
+            .subscribe(onNext: {[weak self]  _ in
                 // 약한참조 처리
-                self.action.confirmAction()
+                self?.action?.confirmAction()
                 
             })
             .disposed(by: disposeBag)
@@ -158,9 +191,9 @@ public struct MypageLayoutModel {
         self.cancel.rx.tapGesture()
             .throttle(.microseconds(500), latest: false, scheduler: MainScheduler.instance)
             .when(.recognized)
-            .subscribe(onNext: {  _ in
+            .subscribe(onNext: { [weak self]  _ in
                 // 약한참조 처리
-                self.action.cancelAction()
+                self?.action?.cancelAction()
             })
             .disposed(by: disposeBag)
         

@@ -146,7 +146,7 @@ public extension TargetDependency {
     static let tcpSocket: TargetDependency = .framework(path: "CustomFramework/TCPSocket/TCPSocket.framework")
     static let starScream: TargetDependency = .external(name: "Starscream")
     static let grpc: TargetDependency = .external(name: "GRPC")
-    static let sChart: TargetDependency = .external(name: "GRPC")
+    static let sChart: TargetDependency = .external(name: "Charts")
     
 }
 
