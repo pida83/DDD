@@ -20,7 +20,7 @@ struct MypageCellLayoutModel {
         $0.backgroundColor = .clear
         $0.font = UIFont.systemFont(ofSize: 18)
         $0.textColor = .white
-        $0.textAlignment = .center
+        $0.textAlignment = .left
     }
     
 //    let priceLabel: UILabel    = .init(frame: .zero).then{
@@ -100,7 +100,7 @@ class MypageTableCell: UITableViewCell {
         
     }
     
-    func setData(data: StreamModel, height: CGFloat) {
+    func setData(data: StreamModel, name: String = "btc") {
 //        layoutModel.cellHeight = height
         
         model = data
@@ -110,7 +110,7 @@ class MypageTableCell: UITableViewCell {
         let howStrong = "\(data.howStrong)".leftPadding(toLength: 5, withPad: "  ")
         let check     = "\(data.sum > data.average ? "+" : "")"
         
-        layoutModel.commentLabel.text = "ud : [\(sum)] dp : [\(dps)] av: [\(average)] [\(howStrong)] [\(check)]"
+        layoutModel.commentLabel.text = "[\(name)] d: [\(dps)] u: [\(sum)] a: [\(average)] [\(howStrong)]\(check) : \(data.lastPrice)"
 //        layoutModel.titleLabel.text   = model.comment
 //        layoutModel.commentLabel.text = model.comment
 //        layoutModel.priceLabel.text   = model.comment + model.comment + model.comment + model.comment + model.comment + model.comment + model.comment

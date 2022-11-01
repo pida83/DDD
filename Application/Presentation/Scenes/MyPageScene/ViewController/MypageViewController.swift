@@ -18,28 +18,30 @@ public class MypageViewController: UIViewController {
     
     public static func create(with viewModel: MypageViewModel) -> MypageViewController {
         let vc = MypageViewController()
-            vc.viewModel = viewModel
-            vc.layoutModel = .init()
+        vc.viewModel = viewModel
+        vc.layoutModel = .init()
         return vc
     }
     
     public override func viewDidLoad() {
         super.viewDidLoad()
         
+        
+        
         bind(to: viewModel)
         viewModel.viewDidLoad()
         layoutModel.viewDidLoad(parent: self.view)
-        layoutModel.action = MypageAction(cancelAction: self.cancelAction, confirmAction: self.confirmAction)
+        layoutModel.action = MypageAction(cancelAction: self.cancelAction, confirmAction: self.confirmAction, restartAction: willEnter)
         print(layoutModel.action)
-//        layoutModel.coinPicker.delegate = self
-//        layoutModel.coinPicker.dataSource = self
+        //        layoutModel.coinPicker.delegate = self
+        //        layoutModel.coinPicker.dataSource = self
     }
     
     func bind(to viewModel: MypageViewModel) {
         
         // 실시간 채널
         viewModel.outModel.subscribe(onNext: { data in
-            self.layoutModel.setTextFieldData(data: data)
+            self.layoutModel.setTextFieldData(data: data, name: viewModel.selected)
         }).disposed(by: disposeBag)
         
         
@@ -57,27 +59,92 @@ public class MypageViewController: UIViewController {
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        
         layoutModel.mainTable.delegate = self
         layoutModel.mainTable.dataSource = self
+        print("willapear")
+        addObservers()
+        willEnter()
     }
     
     
-    public func cancelAction(){
-        self.view.resignFirstResponder()
-        self.layoutModel.parentView.resignFirstResponder()
-        self.layoutModel.inputView.resignFirstResponder()
-        self.view.endEditing(true)
-        self.layoutModel.parentView.endEditing(true)
-        self.layoutModel.inputView.endEditing(true)
+    func addObservers() {
+        if #available(iOS 13.0, *) {
+            NotificationCenter.default.addObserver(self, selector: #selector(willDeactive), name: UIScene.willDeactivateNotification, object: nil)
+        } else {
+            NotificationCenter.default.addObserver(self, selector: #selector(willDeactive), name: UIApplication.willResignActiveNotification, object: nil)
+        }
+        
+        if #available(iOS 13.0, *) {
+            NotificationCenter.default.addObserver(self, selector: #selector(willEnter), name: UIScene.willEnterForegroundNotification, object: nil)
+        } else {
+            NotificationCenter.default.addObserver(self, selector: #selector(willEnter), name: UIApplication.willEnterForegroundNotification, object: nil)
+        }
+        
+        // call the 'keyboardWillShow' function when the view controller receive the notification that a keyboard is going to be shown
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        
+        // call the 'keyboardWillHide' function when the view controlelr receive notification that keyboard is going to be hidden
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    
+    @objc func willDeactive(){
+        print("will deactive")
+        self.viewModel.isSocketConnected() ? viewModel.setDisconnect() : nil
+    }
+    
+    @objc func willEnter() {
+        print("will enter")
+        !self.viewModel.isSocketConnected() ? viewModel.startConnect() : nil
+    }
+    
+    public override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        print("::::::::::: will disapear")
+        NotificationCenter.default.removeObserver(self)
+        willDeactive()
         
     }
     
-    public func confirmAction() {
-        if self.layoutModel.inputView.hasText,  let name = self.layoutModel.inputView.text {
-            self.viewModel.didInputSelected(name: name)
-        } else {
-            self.cancelAction()
+    @objc func keyboardWillShow(notification: NSNotification) {
+        
+        guard let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
+            // if keyboard size is not available for some reason, dont do anything
+            return
         }
+        
+        // move the root view up by the distance of keyboard height
+        self.layoutModel.parentView.transform = .init(translationX: 0, y: -(keyboardSize.height + 50))
+//        self.layoutModel.inputView.transform = .init(translationX: 0, y: -(keyboardSize.height + 50))
+        
+    }
+    
+
+   @objc func keyboardWillHide(notification: NSNotification) {
+     // move back the root view origin to zero
+       self.layoutModel.parentView.transform = .identity
+//       self.layoutModel.inputView.transform = .identity
+   }
+       
+//   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+//           self.view.endEditing(true)
+//
+//       }
+    
+    public func cancelAction(){
+        self.view.endEditing(true)
+        self.viewModel.setDisconnect()
+    }
+    
+    public func confirmAction() {
+        
+        if self.layoutModel.inputView.hasText,  let name = self.layoutModel.inputView.text {
+            self.viewModel.didInputSelected(name: name.lowercased())
+        }
+        
+        self.cancelAction()
+        
     }
 }
 
@@ -99,7 +166,7 @@ extension MypageViewController: UITableViewDataSource {
         let row        = indexPath.row
         let cellHeight = tableView.frame.height / layoutModel.TABLE_ROW_PER_PAGE
         
-        cell.setData(data: data, height: cellHeight)
+        cell.setData(data: data, name: viewModel.selected)
         return cell
     }
 }

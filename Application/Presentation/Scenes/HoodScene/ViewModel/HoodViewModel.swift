@@ -7,27 +7,166 @@
 //
 
 import Foundation
+import Alamofire
+import SwiftyJSON
+import RxSwift
+import RxCocoa
+import Starscream
 
-public protocol HoodViewModelInput {
+protocol HoodViewModelInput {
     func viewDidLoad()
 }
 
-public protocol HoodViewModelOutput {
+protocol HoodViewModelOutput {
+    var list : [JSON] {get set}
+    var didListUpdate : PublishSubject<Void> {get set}
+//    var stateData : [String: StreamModel] {get set}
+    var dataList: [(key: String , value: StreamModel)] {get set}
+}
+
+protocol HoodViewModel: HoodViewModelInput, HoodViewModelOutput {
+    
     
 }
 
-public protocol HoodViewModel: HoodViewModelInput, HoodViewModelOutput { }
-
-public class DefaultHoodViewModel: HoodViewModel {
+class DefaultHoodViewModel: HoodViewModel {
+    var list : [JSON] = [] {
+        didSet {
+            listProcess()
+        }
+    }
+    
+    let apiEndPoint = "https://api1.binance.com/api/v3/ticker/24hr?type=MINI"
+//    lazy var socketURLEndpoint = "wss://stream.binance.com:9443/ws/\(self.selected.lowercased())@trade"
+    var isConnected : Bool = false
+    var socket: [WebSocket] = []
+    
+    var modelData: StreamModel = .init()
+    
+    var stateData : [String: StreamModel] = [:]
+    
+    var dataList: [(key: String , value: StreamModel)] = [] {
+        didSet {
+            print("seted")
+            didListUpdate.onNext(())
+        }
+    }
+    
+    var selected: String = "bttc" {
+        didSet {
+            connect()
+        }
+    }
+    
+    var didListUpdate : PublishSubject<Void> = .init()
     
     // MARK: - OUTPUT
-    public init() {
+    init() {
+            
+    }
+    
+    func listProcess() {
+        if list.count < 1 {
+            print(self.stateData.count)
+            return
+        }
         
+        let symbol = list.removeFirst()["symbol"].stringValue
+        self.selected = symbol
+    }
+    
+    
+    
+    func connect(){
+        print("connect")
+        // 소켓을 연결해보자
+        var request = URLRequest(url: URL(string: "wss://stream.binance.com:9443/ws/\(self.selected.lowercased())@trade")!)
+            request.timeoutInterval = 5
+        
+        var socket = WebSocket(request: request)
+            socket.delegate = self
+            socket.connect()
+        
+        self.socket.append(socket)
+        Timer.scheduledTimer(withTimeInterval: 10, repeats: false, block: disconnect(timer:))
+    }
+    
+    func disconnect(timer: Timer? = nil) {
+        if self.isConnected != false {
+            socket.removeFirst().disconnect()
+            if timer != nil, socket.count < 1 {
+                self.dataList = stateData.map{(key: $0.key , value: $0.value)}
+            }
+            
+        }
     }
 }
 
 // MARK: - INPUT. View event methods
 extension DefaultHoodViewModel {
-    public func viewDidLoad() {
+    func viewDidLoad() {
+        let req = AF.request(apiEndPoint)
+            req.responseData { [weak self] data in
+                if let data = data.data , let json = try? JSON(data: data) {
+                    let ticker = json.filter{
+                        !$1["symbol"].stringValue.contains("BUSD") &&
+                        $1["symbol"].stringValue.contains("USDT") &&
+                        $1["symbol"].stringValue.hasSuffix("USDT")
+                    }.map{$1}
+                     .sorted(by: {$0["quoteVolume"].floatValue > $1["quoteVolume"].floatValue })
+                    self?.list = ticker[0 ... 5].map{$0}
+                    self?.listProcess()
+                }
+            }
+        
     }
+}
+extension DefaultHoodViewModel: WebSocketDelegate {
+    public func didReceive(event: Starscream.WebSocketEvent, client: Starscream.WebSocket) {
+        switch event {
+            case .connected(let headers):
+                self.isConnected = true
+                print("websocket is connected aa: \(headers)")
+            
+            case .text(let string):
+                progressJSON(JSON(parseJSON: string))
+            case .binary(let data):
+                print("Received data: \(data.count)")
+            case .ping(_):
+                break
+            case .pong(_):
+                break
+            case .viabilityChanged(_):
+                print("viabilityChanged")
+                break
+            case .disconnected(let reason, let code):
+            self.isConnected = false
+                print("websocket is disconnected: \(reason) with code: \(code)")
+            case .reconnectSuggested(_):
+            self.isConnected = false
+                print("recon")
+            case .cancelled:
+                print("cancelled")
+            self.isConnected = false
+            case .error(let error):
+                print("error")
+            self.isConnected = false
+            }
+    }
+    
+    func progressJSON(_ data : JSON) {
+        if self.stateData[data["s"].stringValue] == nil {
+            self.stateData[data["s"].stringValue] = .init()
+        } else {
+            self.stateData[data["symbol"].stringValue] = self.stateData[data["symbol"].stringValue]?.update(data: data)
+        }
+        
+        
+        
+//        if self.stateData[data["symbol"].stringValue]
+//        self.stateData[data["symbol"].stringValue] = self.modelData
+//        self.modelData = modelData.update(data: data)
+    }
+    
+    
 }

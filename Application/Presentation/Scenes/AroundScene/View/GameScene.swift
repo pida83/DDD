@@ -25,11 +25,39 @@ class GameScene : SKScene {
     let eggC = SKSpriteNode(imageNamed: "egg3").then{$0.name = "egg3"} // 노랑
     
     lazy var nodeQueue = [eggA, eggB , eggC]
+    var bgObject = SKNode()
+
+    func createGround() {
+        let groundTexture = SKTexture(imageNamed: "egg1")
+        print("\(#function) \(self.size)")
+        for i in 0 ..< 1{
+            let ground = SKSpriteNode(texture: groundTexture)
+            
+            ground.zPosition = -10
+            ground.position = .init(x: 0, y: 0)
+            ground.position = CGPoint(x: (groundTexture.size().width / 2.0 + (groundTexture.size().width * CGFloat(i))), y: groundTexture.size().height / 2)
+            
+            addChild(ground)
+
+            let moveLeft = SKAction.moveBy(x: -ground.size.width, y: 0, duration: 3)
+            let moveReset = SKAction.moveBy(x: ground.size.width, y: 0, duration: 0)
+            let moveLoop = SKAction.sequence([moveLeft, moveReset])
+            let moveForever = SKAction.repeatForever(moveLoop)
+
+            ground.run(moveForever)
+        }
+    }
     
+    override func sceneDidLoad() {
+        print("\(#function) \(self.size)")
+        createGround()
+    }
+        
+//    override func didFinishUpdate() {
+//        print("\(#function) \(self.size)")
+//    }
     
     override func didMove(to view: SKView) {
-        
-        
 //        print(#function)
         anchorPoint = .init(x: 0.5, y: 0.5)
         eggA.anchorPoint = .init(x: 0.5, y: 0.5)
@@ -38,216 +66,217 @@ class GameScene : SKScene {
         physicsWorld.contactDelegate = self
         
         
-        eggA.size = .init(width: 100, height: 100)
-        eggC.size = .init(width: 100, height: 100)
-        let gravityVector = vector_float3(0,-3,0);
-
-        let gravityNode = SKFieldNode.linearGravityField(withVector: gravityVector)
         
-        
-        gravityNode.strength = 1.5
-        gravityNode.zRotation = CGFloat.pi // Flip gravity.
-//        gravityNode.categoryBitMask = 0x1 << 0
-        
-        
-        var splinePoints = [CGPoint(x: -100, y: 100), CGPoint(x: 100, y: 100),
-                            CGPoint(x: 100, y: -100), CGPoint(x: 100, y: 100)
-                            ]
-        
-//        let ground = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 100, height: 30))
-////        SKShapeNode(splinePoints: &splinePoints,
-////                                 count: splinePoints.count)
-//        ground.name = "ground"
-//        ground.lineWidth = 5
-//        ground.physicsBody = SKPhysicsBody(rectangleOf: ground.frame.size)
-////        SKPhysicsBody(edgeChainFrom: ground.path!)
-//        ground.physicsBody?.restitution = 1.0
-//        ground.physicsBody?.isDynamic = false
-        eggC.physicsBody = SKPhysicsBody(rectangleOf: eggC.frame.size)
-        eggC.physicsBody?.restitution = 1.0
-        eggC.physicsBody?.isDynamic = false
-//        addChild(ground)
-        addChild(gravityNode)
-        addChild(eggA)
-//        let data = try! Data(contentsOf: Bundle.main.url(forResource: "coin_ani_01", withExtension: "webp")!)
-//        let txtu = SKTexture(data: data, size: .init(width: 50.0, height: 50.0))
-        
-        
-        eggC.position = .init(x: 0, y: 0)
-        
-//        var vue : UIImageView = .init()
-//            vue.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
-//        vue.sd_setImage(with: URL(string: "http://littlesvr.ca/apng/images/SteamEngine.webp")){ img , err ,_,_ in
-//            self.eggA.texture = SKTexture(image: img!)
-//            print(img)
-//            print(err)
-//        }
 //
-//        self.view?.addSubview(vue)
-        
-        
-        
-        
-        eggA.physicsBody = SKPhysicsBody(texture: eggA.texture!, size: eggA.texture!.size())
- 
-//        eggA.physicsBody?.categoryBitMask = 32
-//        eggA.physicsBody?.collisionBitMask =  32
-//        eggC.physicsBody?.categoryBitMask = 32
-//        eggC.physicsBody?.collisionBitMask =  32
-        
-        
-        eggA.physicsBody?.contactTestBitMask = 32
-//        eggC.physicsBody?.contactTestBitMask = 32
-        
-//        eggA.physicsBody?.isDynamic = false
-//        eggA.physicsBody?.affectedByGravity = true
-        
-        
-//        physicsWorld.contactDelegate = self
-//        physicsWorld.gravity = .init(dx: 0.0, dy: 0.3)
-//        physicsWorld.speed = 1
-//        let defaultX = eggA.size.width / 2
-//        let defaultY = eggA.size.height / 2
-        
-//        eggA.position = .init(x: -eggA.size.width, y: 0)
-//        eggB.position = .init(x: -eggA.size.width, y: -100)
-//        eggC.position = .init(x: -eggA.size.width, y: -200)
-        // 포지션은 대상의 센터를 기준으로 한다
-//        eggA.position = .init(x: defaultX, y: defaultY)  // 분홍
-//        eggB.position = .init(x: size.width / 2, y: defaultY * 3) // 파랑
-//        eggC.position = .init(x: size.width - defaultX, y: defaultY) // 노랑
-        
-        
-//        let actualDuration = random(min: CGFloat(2.0), max: CGFloat(4.0))
-//        let actionRotate = SKAction.rotate(byAngle: .pi, duration: actualDuration)
-//        let gravityVector = vector_float3(0,-1,0);
+//        eggA.size = .init(width: 100, height: 100)
+//        eggC.size = .init(width: 100, height: 100)
+//        let gravityVector = vector_float3(0,-3,0);
 //        let gravityNode = SKFieldNode.linearGravityField(withVector: gravityVector)
 //
-//        gravityNode.strength = 9.8
 //
+//        gravityNode.strength = 1.5
+//        gravityNode.zRotation = CGFloat.pi // Flip gravity.
+////        gravityNode.categoryBitMask = 0x1 << 0
+//
+//
+//        var splinePoints = [CGPoint(x: -100, y: 100), CGPoint(x: 100, y: 100),
+//                            CGPoint(x: 100, y: -100), CGPoint(x: 100, y: 100)
+//                            ]
+//
+////        let ground = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 100, height: 30))
+//////        SKShapeNode(splinePoints: &splinePoints,
+//////                                 count: splinePoints.count)
+////        ground.name = "ground"
+////        ground.lineWidth = 5
+////        ground.physicsBody = SKPhysicsBody(rectangleOf: ground.frame.size)
+//////        SKPhysicsBody(edgeChainFrom: ground.path!)
+////        ground.physicsBody?.restitution = 1.0
+////        ground.physicsBody?.isDynamic = false
+//        eggC.physicsBody = SKPhysicsBody(rectangleOf: eggC.frame.size)
+//        eggC.physicsBody?.restitution = 1.0
+//        eggC.physicsBody?.isDynamic = false
+////        addChild(ground)
 //        addChild(gravityNode)
-        
-        
-               // 중앙 상단으로 세팅
-//        snowNode.isUserInteractionEnabled = false
-//        snowNode.targetNode = eggA
-//        snowNode.position = CGPointMake(-10, -10);
-//        snowNode.targetNode = self
-//        snowNode.zPosition = -1
-        
-        self.addChild(eggC)
-//        self.addChild(eggB)
-        
-        
-//        let shield = SKFieldNode.radialGravityField()
-////        shield.strength = 5
-//        shield.categoryBitMask = 0x1 << 1
-//        shield.region = SKRegion(radius: 100)
-//        shield.falloff = 4
-//        shield.run(SKAction.sequence([
-//            SKAction.strength(to: 0, duration: 2.0),
-//            SKAction.removeFromParent()
-//            ]))
-//        eggA.addChild(shield)
-//        eggA.physicsBody = SKPhysicsBody(circleOfRadius: eggA.size.width)
-//        eggA.physicsBody?.categoryBitMask = 0x1 << 1
-        
-//        eggA.run(
-//            SKAction.moveTo(x: -100, duration: 3)
-//        )
-//        eggA.physicsBody?.collisionBitMask = UInt32.max
-
-        
-//        eggA.run(
-//                                    SKAction.group([
-//                                        SKAction.moveTo(y: -100, duration: 3),
-//                                        SKAction.strength(to: 0, duration: 3)
+//        addChild(eggA)
+////        let data = try! Data(contentsOf: Bundle.main.url(forResource: "coin_ani_01", withExtension: "webp")!)
+////        let txtu = SKTexture(data: data, size: .init(width: 50.0, height: 50.0))
 //
-//                                    ])
-            
-           
-            
-//            SKAction.group([
-//                SKAction.moveTo(y: -100, duration: 4),
-//                SKAction.repeatForever(
-//                    SKAction.group([
+//
+//        eggC.position = .init(x: 0, y: 0)
+//
+////        var vue : UIImageView = .init()
+////            vue.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
+////        vue.sd_setImage(with: URL(string: "http://littlesvr.ca/apng/images/SteamEngine.webp")){ img , err ,_,_ in
+////            self.eggA.texture = SKTexture(image: img!)
+////            print(img)
+////            print(err)
+////        }
+////
+////        self.view?.addSubview(vue)
+//
+//
+//
+//
+//        eggA.physicsBody = SKPhysicsBody(texture: eggA.texture!, size: eggA.texture!.size())
+//
+////        eggA.physicsBody?.categoryBitMask = 32
+////        eggA.physicsBody?.collisionBitMask =  32
+////        eggC.physicsBody?.categoryBitMask = 32
+////        eggC.physicsBody?.collisionBitMask =  32
+//
+//
+//        eggA.physicsBody?.contactTestBitMask = 32
+////        eggC.physicsBody?.contactTestBitMask = 32
+//
+////        eggA.physicsBody?.isDynamic = false
+////        eggA.physicsBody?.affectedByGravity = true
+//
+//
+////        physicsWorld.contactDelegate = self
+////        physicsWorld.gravity = .init(dx: 0.0, dy: 0.3)
+////        physicsWorld.speed = 1
+////        let defaultX = eggA.size.width / 2
+////        let defaultY = eggA.size.height / 2
+//
+////        eggA.position = .init(x: -eggA.size.width, y: 0)
+////        eggB.position = .init(x: -eggA.size.width, y: -100)
+////        eggC.position = .init(x: -eggA.size.width, y: -200)
+//        // 포지션은 대상의 센터를 기준으로 한다
+////        eggA.position = .init(x: defaultX, y: defaultY)  // 분홍
+////        eggB.position = .init(x: size.width / 2, y: defaultY * 3) // 파랑
+////        eggC.position = .init(x: size.width - defaultX, y: defaultY) // 노랑
+//
+//
+////        let actualDuration = random(min: CGFloat(2.0), max: CGFloat(4.0))
+////        let actionRotate = SKAction.rotate(byAngle: .pi, duration: actualDuration)
+////        let gravityVector = vector_float3(0,-1,0);
+////        let gravityNode = SKFieldNode.linearGravityField(withVector: gravityVector)
+////
+////        gravityNode.strength = 9.8
+////
+////        addChild(gravityNode)
+//
+//
+//               // 중앙 상단으로 세팅
+////        snowNode.isUserInteractionEnabled = false
+////        snowNode.targetNode = eggA
+////        snowNode.position = CGPointMake(-10, -10);
+////        snowNode.targetNode = self
+////        snowNode.zPosition = -1
+//
+//        self.addChild(eggC)
+////        self.addChild(eggB)
+//
+//
+////        let shield = SKFieldNode.radialGravityField()
+//////        shield.strength = 5
+////        shield.categoryBitMask = 0x1 << 1
+////        shield.region = SKRegion(radius: 100)
+////        shield.falloff = 4
+////        shield.run(SKAction.sequence([
+////            SKAction.strength(to: 0, duration: 2.0),
+////            SKAction.removeFromParent()
+////            ]))
+////        eggA.addChild(shield)
+////        eggA.physicsBody = SKPhysicsBody(circleOfRadius: eggA.size.width)
+////        eggA.physicsBody?.categoryBitMask = 0x1 << 1
+//
+////        eggA.run(
+////            SKAction.moveTo(x: -100, duration: 3)
+////        )
+////        eggA.physicsBody?.collisionBitMask = UInt32.max
+//
+//
+////        eggA.run(
+////                                    SKAction.group([
+////                                        SKAction.moveTo(y: -100, duration: 3),
+////                                        SKAction.strength(to: 0, duration: 3)
+////
+////                                    ])
+//
+//
+//
+////            SKAction.group([
+////                SKAction.moveTo(y: -100, duration: 4),
+////                SKAction.repeatForever(
+////                    SKAction.group([
+//////                        SKAction.sequence([
+//////                            SKAction.scale(to: 0.9, duration: 1),
+//////                            SKAction.scale(to: 1, duration: 1),
+//////                            SKAction.scale(to: 1.1, duration: 1),
+//////                        ]),
+////                        SKAction.strength(to: 0, duration: 3),
 ////                        SKAction.sequence([
-////                            SKAction.scale(to: 0.9, duration: 1),
-////                            SKAction.scale(to: 1, duration: 1),
-////                            SKAction.scale(to: 1.1, duration: 1),
-////                        ]),
-//                        SKAction.strength(to: 0, duration: 3),
-//                        SKAction.sequence([
-//                            SKAction.group([SKAction.scale(to: 0.9, duration: 1),
-//                                            SKAction.moveTo(x: eggA.position.x - 10, duration: 1)]),
+////                            SKAction.group([SKAction.scale(to: 0.9, duration: 1),
+////                                            SKAction.moveTo(x: eggA.position.x - 10, duration: 1)]),
+////
+////                            SKAction.group([
+////                                SKAction.scale(to: 1, duration: 1),
+////                                SKAction.moveTo(x: eggA.position.x , duration: 1),
+////                            ]),
+////
+////                            SKAction.group([
+////                                SKAction.scale(to: 1.1, duration: 1),
+////                                SKAction.moveTo(x: eggA.position.x + 10, duration: 1),
+////                            ]),
+////                            SKAction.moveTo(x: eggA.position.x , duration: 1),
+////
+////                        ])
+////                    ])
+////
+////                )
+////            ])
+////        )
+////        let gravityCategory: UInt32 = 0x1 << 0
+////        let shieldCategory: UInt32 = 0x1 << 1
+////
+////        let gravity = SKFieldNode.radialGravityField()
+////        gravity.strength = 10
+////        gravity.categoryBitMask = gravityCategory
+////        addChild(gravity)
+////
+////        let gravity2 = SKFieldNode.radialGravityField()
+////        gravity2.strength = 3
+////        gravity2.categoryBitMask = shieldCategory
+////        eggA.physicsBody?.fieldBitMask = shieldCategory
+////
+////
+////        eggB.physicsBody?.fieldBitMask = gravityCategory
+////        ...
+////        missile.physicsBody?.fieldBitMask = shieldCategory
 //
-//                            SKAction.group([
-//                                SKAction.scale(to: 1, duration: 1),
-//                                SKAction.moveTo(x: eggA.position.x , duration: 1),
-//                            ]),
-//
-//                            SKAction.group([
-//                                SKAction.scale(to: 1.1, duration: 1),
-//                                SKAction.moveTo(x: eggA.position.x + 10, duration: 1),
-//                            ]),
-//                            SKAction.moveTo(x: eggA.position.x , duration: 1),
-//
-//                        ])
-//                    ])
-//
-//                )
-//            ])
-//        )
-//        let gravityCategory: UInt32 = 0x1 << 0
-//        let shieldCategory: UInt32 = 0x1 << 1
-//
-//        let gravity = SKFieldNode.radialGravityField()
-//        gravity.strength = 10
-//        gravity.categoryBitMask = gravityCategory
-//        addChild(gravity)
-//
-//        let gravity2 = SKFieldNode.radialGravityField()
-//        gravity2.strength = 3
-//        gravity2.categoryBitMask = shieldCategory
-//        eggA.physicsBody?.fieldBitMask = shieldCategory
+////        let shieldCategory: UInt32 = 0x1 << 1
+////        let shield = SKFieldNode.radialGravityField()
+////        shield.strength = 1
+////        shield.categoryBitMask = shieldCategory
+////        shield.region = SKRegion(radius: 100)
+////        shield.falloff = 4
+//////        shield.run(SKAction.strength(to: 0, duration: 5.0))
+////        addChild(shield)
 //
 //
-//        eggB.physicsBody?.fieldBitMask = gravityCategory
-//        ...
-//        missile.physicsBody?.fieldBitMask = shieldCategory
-        
-//        let shieldCategory: UInt32 = 0x1 << 1
-//        let shield = SKFieldNode.radialGravityField()
-//        shield.strength = 1
-//        shield.categoryBitMask = shieldCategory
-//        shield.region = SKRegion(radius: 100)
-//        shield.falloff = 4
-////        shield.run(SKAction.strength(to: 0, duration: 5.0))
-//        addChild(shield)
-        
-        
-        
-//        eggB.run(
-//            SKAction.sequence([
-////                SKAction.moveTo(y: eggA.position.x + 500, duration: 3),
-//                SKAction.strength(to: 0, duration: 3),
-//                SKAction.removeFromParent()
-//            ])
-//        )
 //
-//        eggC.run(
-//            SKAction.moveTo(y: eggA.position.x - 500, duration: 3)
-//        )
-        
-        
-        
-//        eggA.run(SKAction.repeatForever(
-//          SKAction.sequence([
-//            actionRotate
-////            SKAction.run(addeggA),
-////            SKAction.wait(forDuration: 1.0)
-//          ])
-//        ))
+////        eggB.run(
+////            SKAction.sequence([
+//////                SKAction.moveTo(y: eggA.position.x + 500, duration: 3),
+////                SKAction.strength(to: 0, duration: 3),
+////                SKAction.removeFromParent()
+////            ])
+////        )
+////
+////        eggC.run(
+////            SKAction.moveTo(y: eggA.position.x - 500, duration: 3)
+////        )
+//
+//
+//
+////        eggA.run(SKAction.repeatForever(
+////          SKAction.sequence([
+////            actionRotate
+//////            SKAction.run(addeggA),
+//////            SKAction.wait(forDuration: 1.0)
+////          ])
+////        ))
         
     }
     
@@ -280,14 +309,15 @@ class GameScene : SKScene {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        print(#function)
+        print("\(#function) \(self.size)")
+//        print(#function)
         
 //        eggA.isPaused = true
         
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        print(#function)
+//        print(#function)
 //        eggA.isPaused = false
 //        eggA.position = .init(x: 0, y: 0)
         guard let touch = touches.first else {
@@ -369,11 +399,11 @@ class GameScene : SKScene {
 
 extension GameScene: SKPhysicsContactDelegate {
     func didBegin(_ contact: SKPhysicsContact) {
-        print(#function)
+//        print(#function)
     }
     
     func didEnd(_ contact: SKPhysicsContact) {
-        print(#function)
+//        print(#function)
     }
     
 }

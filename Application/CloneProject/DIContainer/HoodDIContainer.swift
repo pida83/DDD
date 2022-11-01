@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class HoodDIContainer: DIContainer {
+class HoodDIContainer: DIContainer {
     init() { }
     
 //    // MARK: Repository
@@ -28,7 +28,7 @@ public class HoodDIContainer: DIContainer {
 }
 
 extension HoodDIContainer : HoodCoordinatorDependencies {
-    public func makeHoodViewController() -> HoodViewController {
+    func makeHoodViewController() -> HoodViewController {
         let vc = HoodViewController.create(with: makeViewModel())
             vc.view.backgroundColor = .brown
         return vc

@@ -101,10 +101,10 @@ public class AroundViewController: UIViewController {
             $0.removeFromSuperview()
         }
         
-        let scene = GameScene(size: view.bounds.size)
-            scene.gameAction = .init(addView: setView)
-            scene.scaleMode = .resizeFill
-        self.layoutModel.skView.presentScene(scene)
+//        let scene = GameScene(size: view.bounds.size)
+//            scene.gameAction = .init(addView: setView)
+//            scene.scaleMode = .resizeFill
+//        self.layoutModel.skView.presentScene(scene)
     }
     
     

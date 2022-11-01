@@ -39,7 +39,7 @@ public struct StreamModel {
     @FloorNumber var sum : Int          = 0
                  var dpsDatas : [Int] = []
     @FloorNumber var average: Int = 0
-    @FloorNumber var lastPrice: Int = 0
+     var lastPrice: Float = 0
      var howStrong: String = ""
     
     mutating func update(data: JSON) -> StreamModel {
@@ -47,7 +47,7 @@ public struct StreamModel {
         
         self.howStrong = ""
         
-        let isMoreExpenciveThan : Bool = data["p"].intValue > self.lastPrice
+        let isMoreExpenciveThan : Bool = data["p"].floatValue > self.lastPrice
         if isMoreExpenciveThan {
             upCnt += 1
         } else {
@@ -65,7 +65,7 @@ public struct StreamModel {
                 sum += 1
             }
         }
-        self.lastPrice  = data["p"].intValue
+        self.lastPrice  = data["p"].floatValue
         
         if dps > average {
             self.howStrong.append("*")
@@ -115,11 +115,7 @@ public protocol MypageViewModelInput {
 
 public protocol MypageViewModelOutput {
     var outModel: PublishSubject<StreamModel> {get set}
-    var output_upCnt: BehaviorSubject<Int> {get set}
-    var output_downCnt: BehaviorSubject<Int> {get set}
-    var output_dps : BehaviorSubject<Int> {get set}
-    var output_sum : BehaviorSubject<Int> {get set}
-    var output_dpsAverage: BehaviorSubject<[Int]> {get set}
+    
     var output_didUpdate : PublishSubject<Bool> {get set}
     var output_didUpdateList : PublishSubject<Bool>{get set}
     
@@ -128,21 +124,31 @@ public protocol MypageViewModelOutput {
 }
 
 public protocol MypageViewModel: MypageViewModelInput, MypageViewModelOutput {
-    
-    
+    var selected: String {get set}
+    func isSocketConnected() -> Bool
+    func startConnect()
+    func setDisconnect()
 }
 
 public class DefaultMypageViewModel: MypageViewModel {
     
+    public func startConnect() {
+        connect()
+    }
     
+    public func setDisconnect() {
+        if isSocketConnected() {
+            print("start disconnect")
+            disconnect()
+        }
+    }
     
+    public func isSocketConnected() -> Bool {
+        isConnected
+    }
     
     public var outModel: PublishSubject<StreamModel>      = .init()
-    public var output_upCnt: BehaviorSubject<Int>         = .init(value: 0)
-    public var output_downCnt: BehaviorSubject<Int>       = .init(value: 0)
-    public var output_dps: BehaviorSubject<Int>           = .init(value: 0)
-    public var output_sum: BehaviorSubject<Int>           = .init(value: 0)
-    public var output_dpsAverage: BehaviorSubject<[Int]>  = .init(value: [])
+    
     public var output_didUpdate : PublishSubject<Bool>           = .init()
     public var output_didUpdateList : PublishSubject<Bool>           = .init()
     
@@ -164,7 +170,7 @@ public class DefaultMypageViewModel: MypageViewModel {
     
     var counter = StreamModel()
     
-    public var selected: String = "btcusdt" {
+    public var selected: String = "btc" {
         didSet {
             self.reconnect()
         }
@@ -204,29 +210,28 @@ public class DefaultMypageViewModel: MypageViewModel {
 extension DefaultMypageViewModel {
     
     public func viewDidLoad() {
-        var request = URLRequest(url: URL(string: "wss://stream.binance.com:9443/ws/\(self.selected)@trade")!)
-            request.timeoutInterval = 5
-            socket2 = WebSocket(request: request)
-            socket2.delegate = self
-            socket2.connect()
-        
-        
-        
-        
+        connect()
     }
     
     public func didInputSelected(name: String) {
         self.selected = name
     }
     
-    public func reconnect() {
-        socket2.disconnect()
-        
-        var request = URLRequest(url: URL(string: "wss://stream.binance.com:9443/ws/\(self.selected)@trade")!)
+    public func connect(){
+        var request = URLRequest(url: URL(string: "wss://stream.binance.com:9443/ws/\(self.selected)usdt@trade")!)
             request.timeoutInterval = 5
             socket2 = WebSocket(request: request)
             socket2.delegate = self
             socket2.connect()
+    }
+    
+    public func disconnect(){
+        socket2.disconnect()
+    }
+    
+    public func reconnect() {
+        disconnect()
+        connect()
     }
 }
 
@@ -237,10 +242,7 @@ extension DefaultMypageViewModel : WebSocketDelegate {
             case .connected(let headers):
                 isConnected = true
                 print("websocket is connected: \(headers)")
-            case .disconnected(let reason, let code):
-                isConnected = false
-                self.socket2.connect()
-                print("websocket is disconnected: \(reason) with code: \(code)")
+            
             case .text(let string):
                 progressJSON(JSON(parseJSON: string))
             case .binary(let data):
@@ -250,17 +252,21 @@ extension DefaultMypageViewModel : WebSocketDelegate {
             case .pong(_):
                 break
             case .viabilityChanged(_):
+                print("viabilityChanged")
                 break
+            case .disconnected(let reason, let code):
+                isConnected = false
+//                self.socket2.connect()
+                print("websocket is disconnected: \(reason) with code: \(code)")
             case .reconnectSuggested(_):
+                isConnected = false
                 print("recon")
-            self.socket2.connect()
-                break
             case .cancelled:
+                print("cancelled")
                 isConnected = false
-            self.socket2.connect()
             case .error(let error):
+                print("error")
                 isConnected = false
-                self.socket2.connect()
                 handleError(error)
             }
     }
@@ -272,8 +278,7 @@ extension DefaultMypageViewModel : WebSocketDelegate {
     
     
     func handleError(_ err: Error?){
-        print("error :: ")
-        print(err)
+//        self.connect()
     }
     
 }
