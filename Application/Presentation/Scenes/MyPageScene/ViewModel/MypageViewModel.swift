@@ -27,7 +27,7 @@ public protocol MypageViewModelOutput {
     
     var output_didUpdate : PublishSubject<Bool> {get set}
     var output_didUpdateList : PublishSubject<Bool>{get set}
-    
+    var output_name : PublishSubject<String> {get set}
     var data: [StreamModel] {get set}
     var lists : [String] {get set}
 }
@@ -38,10 +38,10 @@ public protocol MypageViewModel: MypageViewModelInput, MypageViewModelOutput {
 
 public class DefaultMypageViewModel: MypageViewModel {
     
-    public var outModel: PublishSubject<StreamModel>      = .init()
-    public var output_didUpdate : PublishSubject<Bool>           = .init()
-    public var output_didUpdateList : PublishSubject<Bool>           = .init()
-    
+    public var outModel: PublishSubject<StreamModel> = .init()
+    public var output_didUpdate : PublishSubject<Bool> = .init()
+    public var output_didUpdateList : PublishSubject<Bool> = .init()
+    public var output_name: PublishSubject<String> = .init()
     
     public var lists : [String] = .init() {
         didSet {
@@ -99,7 +99,7 @@ public class DefaultMypageViewModel: MypageViewModel {
 extension DefaultMypageViewModel {
     
     public func viewDidLoad() {
-        var request = URLRequest(url: URL(string: "wss://stream.binance.com:9443/ws/\(self.selected)usdt@trade")!)
+        var request = URLRequest(url: URL(string: "wss://fstream.binance.com/ws/\(self.selected)usdt@trade")!)
             request.timeoutInterval = 5
             socket2 = WebSocket(request: request)
             socket2.delegate = self
@@ -122,7 +122,8 @@ extension DefaultMypageViewModel : WebSocketDelegate {
         switch event {
             case .connected(let headers):
                 isConnected = true
-                print("websocket is connected: \(headers)")
+            self.output_name.onNext(self.selected)
+            print("websocket is connected: \(headers) \(self.selected)")
             case .disconnected(let reason, let code):
                 isConnected = false
                 self.socket2.connect()

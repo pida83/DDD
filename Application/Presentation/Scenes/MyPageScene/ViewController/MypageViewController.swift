@@ -53,6 +53,10 @@ public class MypageViewController: UIViewController {
         viewModel.output_didUpdateList.subscribe(onNext: {[weak self] _ in
             self?.layoutModel.coinPicker.reloadAllComponents()
         }).disposed(by: disposeBag)
+        
+        self.viewModel.output_name.subscribe (onNext:{ name in
+            self.layoutModel.nameText.rx.text.onNext(name)
+        }).disposed(by: disposeBag)
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -141,8 +145,6 @@ extension MypageViewController: UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: MypageTableCell.identifier) as? MypageTableCell else { return UITableViewCell() }
         
         let data    =  viewModel.data[indexPath.row]
-        let row        = indexPath.row
-        let cellHeight = tableView.frame.height / layoutModel.TABLE_ROW_PER_PAGE
         
         cell.setData(data: data, name: viewModel.selected)
         return cell

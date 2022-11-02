@@ -54,7 +54,7 @@ public class MypageLayoutModel {
     
     var confirmText: UILabel = .init(frame: .zero).then{
         $0.font = .boldSystemFont(ofSize: 15)
-        $0.textColor = .black
+        $0.textColor = .white
         $0.backgroundColor = .clear
         $0.text = "확인"
         $0.isUserInteractionEnabled = false
@@ -65,6 +65,16 @@ public class MypageLayoutModel {
         $0.backgroundColor = .clear
         $0.textColor = .black
         $0.text = "취소"
+        $0.isUserInteractionEnabled = false
+        $0.textAlignment = .center
+    }
+    
+    var nameText : UILabel = .init(frame: .zero).then{
+        $0.font = .boldSystemFont(ofSize: 25)
+        $0.backgroundColor = .clear
+        $0.textColor = .white
+        $0.text = "name"
+        $0.sizeToFit()
         $0.isUserInteractionEnabled = false
         $0.textAlignment = .center
     }
@@ -110,6 +120,7 @@ public class MypageLayoutModel {
         parentView.addSubview(self.confirm)
         confirm.addSubview(confirmText)
         cancel.addSubview(cancelText)
+        parentView.addSubview(self.nameText)
     }
     
     func setTextFieldData(data: StreamModel, name: String) {
@@ -119,7 +130,7 @@ public class MypageLayoutModel {
         let strength   = String(repeating: "*", count: data.strength).leftPadding(toLength: 5, withPad: "  ")
         
         let check     = "\(data.sum > data.average ? "+" : "")"
-        let outputText = "\(name) - ud : [\(sum)] dp : [\(dps)] av: [\(average)] [\(strength)] [\(check)]"
+        let outputText = "ud : [\(sum)] dp : [\(dps)] av: [\(average)] [\(strength)] [\(check)]"
         
         self.textField.text = outputText
         
@@ -169,6 +180,11 @@ public class MypageLayoutModel {
         
         cancelText.snp.makeConstraints{
             $0.edges.equalToSuperview()
+        }
+        
+        nameText.snp.makeConstraints{
+            $0.centerX.equalToSuperview()
+            $0.top.equalToSuperview()
         }
         
 //        coinPicker.snp.makeConstraints{
