@@ -79,7 +79,7 @@ class HoodLayoutModel {
 
     func setLayout(parent: UIView) {
         parentView.addSubview(self.mainTable)
-        parentView.addSubview(self.chartView)
+//        parentView.addSubview(self.chartView)
         
         parentView.addSubview(connectBtn)
         connectBtn.addSubview(connectLabel)
@@ -96,11 +96,11 @@ class HoodLayoutModel {
             $0.edges.equalToSuperview()
         }
         
-        chartView.snp.makeConstraints{
-            $0.width.equalToSuperview()
-            $0.height.equalToSuperview().dividedBy(2)
-            $0.top.equalToSuperview()
-        }
+//        chartView.snp.makeConstraints{
+//            $0.width.equalToSuperview()
+//            $0.height.equalToSuperview().dividedBy(2)
+//            $0.top.equalToSuperview()
+//        }
         
         connectBtn.snp.makeConstraints{
             $0.width.equalTo(70)
