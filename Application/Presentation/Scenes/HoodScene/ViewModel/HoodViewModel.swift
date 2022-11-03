@@ -48,7 +48,6 @@ class DefaultHoodViewModel: HoodViewModel {
     
     var dataList: [(key: String , value: StreamModel)] = [] {
         didSet {
-            print("seted")
             didListUpdate.onNext(())
         }
     }
@@ -97,8 +96,10 @@ class DefaultHoodViewModel: HoodViewModel {
             socket.removeFirst().disconnect()
             if timer != nil, socket.count < 1 {
                 
-                self.dataList = stateData.map{(key: $0.key , value: $0.value)}
-                print(self.dataList)
+                self.dataList = stateData.map{(key: $0.key.lowercased() , value: $0.value)}
+                    .sorted(by: { first, second in
+                    first.value.dps > second.value.dps
+                })
             }
             
         }
@@ -163,7 +164,6 @@ extension DefaultHoodViewModel: WebSocketDelegate {
     }
     
     func progressJSON(_ data : JSON) {
-        
         if self.stateData[data["s"].stringValue] == nil {
             self.stateData[data["s"].stringValue] = .init()
         } else {
