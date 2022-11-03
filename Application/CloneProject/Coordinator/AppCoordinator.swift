@@ -10,7 +10,7 @@ import UIKit
 import RealmSwift
 
 
-public protocol AppCoordinatorDependencies {
+ protocol AppCoordinatorDependencies {
     func makeHomeDIContainer() -> HomeDIContainer
     func makeHoodDIContainer() -> HoodDIContainer
     func makeAroundDIContainer() -> AroundDIContainer
@@ -19,19 +19,19 @@ public protocol AppCoordinatorDependencies {
 }
 
 // AppCoordinator 는 디펜던시로부터 필요한 코디네이터를 받고 화면에 올려준다
-public final class AppCoordinator: Coordinator {
-    public var childCoordinator: [Coordinator] = []
+ final class AppCoordinator: Coordinator {
+     var childCoordinator: [Coordinator] = []
     private var coordinator : CommonTabbarController
     
     private var dependencies : AppCoordinatorDependencies
     
-    public init (coordinator: CommonTabbarController, dependencies: AppCoordinatorDependencies){
+     init (coordinator: CommonTabbarController, dependencies: AppCoordinatorDependencies){
         self.coordinator = coordinator
         self.dependencies = dependencies
     }
     
     // 각 뷰의 DI Container를 통해 코디네이터를 받고 스타트 하자
-    public func start() {
+     func start() {
         let vc1 = getNavigation()
         let vc2 = getNavigation()
         let vc3 = getNavigation()

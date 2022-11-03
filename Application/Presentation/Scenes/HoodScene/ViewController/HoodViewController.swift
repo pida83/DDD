@@ -8,48 +8,153 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
+import RxGesture
+import Charts
 
-public class HoodViewController: UIViewController {
+class HoodViewController: UIViewController {
     
     var viewModel: HoodViewModel!
     var layoutModel: HoodLayoutModel!
+    var disposeBag: DisposeBag = .init()
+
     
-    var vue : UIView = .init(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
-    
-    public static func create(with viewModel: HoodViewModel) -> HoodViewController {
+    static func create(with viewModel: HoodViewModel) -> HoodViewController {
         let vc = HoodViewController()
         vc.viewModel = viewModel
         vc.layoutModel = .init()
         return vc
     }
     
-    public override func viewDidLoad() {
+    override func viewDidLoad() {
         super.viewDidLoad()
 
         bind(to: viewModel)
         viewModel.viewDidLoad()
         layoutModel.viewDidLoad(parent: self.view)
         
-        view.addSubview(vue)
-        vue.snp.makeConstraints{
-            $0.width.height.equalTo(100)
-            $0.left.equalToSuperview()
-            $0.centerY.equalToSuperview()
-        }
-        vue.backgroundColor = .white
-       // UIPanGestureRecognizer는 target(ViewController)에서 drag가 감지되면 action을 실행한다.
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(drag))
-       // panGesture가 보는 view는 circleView가 된다.
-       view.addGestureRecognizer(gesture)
+        layoutModel.chartView.delegate = self
     }
     
-    @objc func drag(sender: UITapGestureRecognizer) {
-        let view = sender.location(in: self.view)
-//        self.view.convert(<#T##point: CGPoint##CGPoint#>, from: <#T##UICoordinateSpace#>)
-        print(self.vue.frame.contains(view), "  ", sender.view)
+    func setData() {
+        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        var unitsSold = [20.0, 4.0, 6.0, 3.0, 12.0, 16.0, 4.0, 18.0, 2.0, 4.0, 5.0, 4.0]
+        
+        print("data")
+        var entry : [BarChartDataEntry] = []
+        
+        for i in 0 ..< months.count  {
+            var dat = BarChartDataEntry(x: Double(i), y: unitsSold[i])
+            
+            entry.append(BarChartDataEntry(x: Double(i), y: unitsSold[i]))
+        }
+        
+        let chartDataSet = BarChartDataSet(entries: entry, label: "data")
+        
+        let data = BarChartData(dataSet: chartDataSet)
+            data.setValueFont(UIFont(name:"HelveticaNeue-Light", size:10)!)
+            data.barWidth = 0.5
+        
+        self.layoutModel.chartView.data = data
+        self.layoutModel.chartView.fitBars = true
+        self.layoutModel.chartView.backgroundColor = .white
+        let xAxis = self.layoutModel.chartView.xAxis
+                xAxis.labelPosition = .bottom
+                xAxis.labelFont = .systemFont(ofSize: 10)
+                xAxis.drawAxisLineEnabled = true
+                xAxis.granularity = 1
+                xAxis.valueFormatter = IndexAxisValueFormatter(values: months)
+                xAxis.setLabelCount(months.count, force: false)
+//        self.layoutModel.chartView.leftAxis.enabled = false
+        let leftAxis = self.layoutModel.chartView.leftAxis
+                leftAxis.labelFont = .systemFont(ofSize: 10)
+//                leftAxis.drawAxisLineEnabled = true
+//                leftAxis.drawGridLinesEnabled = true
+                leftAxis.axisMinimum = 0
+                leftAxis.axisMaximum = 30
+                leftAxis.granularity = 1
+
+        let rightAxis = self.layoutModel.chartView.rightAxis
+                rightAxis.enabled = true
+                rightAxis.labelFont = .systemFont(ofSize: 10)
+                rightAxis.drawAxisLineEnabled = true
+                rightAxis.axisMinimum = 0
+                rightAxis.axisMaximum = 30
+                rightAxis.granularity = 1
+//                rightAxis.valueFormatter = IndexAxisValueFormatter(values: months)
+//                rightAxis.setLabelCount(months.count, force: false)
+
+//        let l = self.layoutModel.chartView.legend
+//                l.horizontalAlignment = .left
+//                l.verticalAlignment = .bottom
+//                l.orientation = .horizontal
+//                l.drawInside = false
+//                l.form = .square
+//                l.formSize = 8
+//                l.font = UIFont(name: "HelveticaNeue-Light", size: 11)!
+//                l.xEntrySpace = 4
+        
+        //        chartView.legend = l
+            layoutModel.chartView.fitBars = true
+        
+
+//                sliderX.value = 12
+//                sliderY.value = 50
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.setData()
+//        layoutModel.mainTable.delegate = self
+//        layoutModel.mainTable.dataSource = self
+        
+        
+        
     }
     
     func bind(to viewModel: HoodViewModel) {
-
+        viewModel.didListUpdate.subscribe(onNext: {_ in
+//            self.layoutModel.mainTable.reloadData()
+//            self.setData()
+        }).disposed(by: disposeBag)
     }
+}
+extension HoodViewController: UITableViewDataSource {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+//        print("test \(viewModel.data.count)")
+        return viewModel.dataList.count
+    }
+    
+    public func numberOfSections(in tableView: UITableView) -> Int {
+        1
+    }
+    
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: MypageTableCell.identifier) as? MypageTableCell else { return UITableViewCell() }
+        
+        let data    =  viewModel.dataList[indexPath.row]
+        let row        = indexPath.row
+        
+        cell.setData(data: data.value, name: data.key)
+        return cell
+    }
+}
+
+extension HoodViewController: UITableViewDelegate {
+    public func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableView.automaticDimension
+    }
+
+    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableView.automaticDimension
+    }
+    
+}
+
+
+extension HoodViewController: ChartViewDelegate {
+    
 }

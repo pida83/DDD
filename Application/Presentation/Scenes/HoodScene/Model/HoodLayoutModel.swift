@@ -10,30 +10,43 @@
 import UIKit
 import Then
 import SnapKit
+import Charts
 
-public struct HoodLayoutModel {
+struct HoodLayoutModel {
     
     var parentView: UIView = UIView(frame: .zero).then{
         $0.backgroundColor = CloneProjectAsset.defaultColor.color
     }
+     
+    var chartView : HorizontalBarChartView = .init(frame: .zero).then{
+        $0.drawBarShadowEnabled     = false
+        $0.drawValueAboveBarEnabled = true
+    }
+     
     
     var mainTable: UITableView = .init(frame: .zero).then{
-        $0.backgroundColor = .yellow
+        $0.backgroundColor = .black
+        $0.register(MypageTableCell.self, forCellReuseIdentifier: MypageTableCell.identifier)
     }
     
-    public init() {
+     init() {
         
     }
     
     
     func viewDidLoad(parent: UIView) {
+        parent.addSubview(parentView)
+        
         self.setLayout(parent: parent)
+        setConstraint(parent: parent)
     }
     
 
     func setLayout(parent: UIView) {
-        parent.addSubview(parentView)
-        setConstraint(parent: parent)
+        parentView.addSubview(self.mainTable)
+        parentView.addSubview(self.chartView)
+     
+        
     }
     
     
@@ -42,6 +55,17 @@ public struct HoodLayoutModel {
         parentView.snp.makeConstraints{
             $0.edges.equalTo(parent.safeAreaLayoutGuide)
         }
+        
+        mainTable.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        chartView.snp.makeConstraints{
+            $0.width.equalToSuperview()
+            $0.height.equalToSuperview().dividedBy(2)
+            $0.top.equalToSuperview()
+        }
+        
         
     }
 }

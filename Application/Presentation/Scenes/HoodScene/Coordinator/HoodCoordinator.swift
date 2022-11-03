@@ -9,21 +9,21 @@
 import UIKit
 
 
-public protocol HoodCoordinatorDependencies {
+ protocol HoodCoordinatorDependencies {
     func makeHoodViewController() -> HoodViewController
 }
-public class HoodCoordinator: Coordinator {
-    public var childCoordinator: [Coordinator] = .init()
+ class HoodCoordinator: Coordinator {
+     var childCoordinator: [Coordinator] = .init()
     var navigationController : UINavigationController
     var dependencies: HoodCoordinatorDependencies
     
     
-    public init(navigationController: UINavigationController, dependencies: HoodCoordinatorDependencies) {
+     init(navigationController: UINavigationController, dependencies: HoodCoordinatorDependencies) {
         self.navigationController = navigationController
         self.dependencies         = dependencies
     }
     
-    public func start() {
+     func start() {
         let hoodVC = dependencies.makeHoodViewController()
             navigationController.pushViewController(hoodVC, animated: false)
     }
