@@ -11,8 +11,19 @@ import UIKit
 import Then
 import SnapKit
 import Charts
+import RxGesture
+import RxSwift
+import RxCocoa
 
-struct HoodLayoutModel {
+struct HoodLayoutModelAction {
+    var didConnect: () -> Void
+}
+
+class HoodLayoutModel {
+    
+    var actions: HoodLayoutModelAction?
+    
+    var disposeBag: DisposeBag = .init()
     
     var parentView: UIView = UIView(frame: .zero).then{
         $0.backgroundColor = CloneProjectAsset.defaultColor.color
@@ -22,15 +33,26 @@ struct HoodLayoutModel {
         $0.drawBarShadowEnabled     = false
         $0.drawValueAboveBarEnabled = true
     }
-     
+    
+    var connectLabel = UILabel().then{
+        $0.textAlignment = .center
+        $0.text = "start"
+        $0.textColor = .white
+        $0.sizeToFit()
+    }
+    
+    var connectBtn: UIView = UIService.shared.getUIView().then{
+        $0.backgroundColor = .blue
+//        $0.frame = .init(x: 0, y: 0, width: 70, height: 40)
+    }
     
     var mainTable: UITableView = .init(frame: .zero).then{
         $0.backgroundColor = .black
         $0.register(MypageTableCell.self, forCellReuseIdentifier: MypageTableCell.identifier)
     }
     
-     init() {
-        
+    init(actions: HoodLayoutModelAction?) {
+        bind(to: actions)
     }
     
     
@@ -39,14 +61,28 @@ struct HoodLayoutModel {
         
         self.setLayout(parent: parent)
         setConstraint(parent: parent)
+//        bind(to: actions)
+    }
+    
+    func bind(to: HoodLayoutModelAction?) {
+        self.connectBtn.rx.tapGesture()
+            .throttle(.microseconds(500), latest: false, scheduler: MainScheduler.instance)
+            .when(.recognized)
+            .subscribe(onNext: {_ in
+                // 약한참조 처리
+                to?.didConnect()
+                
+            })
+            .disposed(by: disposeBag)
     }
     
 
     func setLayout(parent: UIView) {
         parentView.addSubview(self.mainTable)
         parentView.addSubview(self.chartView)
-     
         
+        parentView.addSubview(connectBtn)
+        connectBtn.addSubview(connectLabel)
     }
     
     
@@ -66,6 +102,16 @@ struct HoodLayoutModel {
             $0.top.equalToSuperview()
         }
         
+        connectBtn.snp.makeConstraints{
+            $0.width.equalTo(70)
+            $0.height.equalTo(40)
+            $0.centerX.equalToSuperview()
+            $0.bottom.equalToSuperview().offset(-50)
+        }
+        
+        connectLabel.snp.makeConstraints{
+            $0.edges.equalToSuperview()
+        }
         
     }
 }

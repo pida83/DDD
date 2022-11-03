@@ -85,7 +85,7 @@ public class DefaultMypageViewModel: MypageViewModel {
         })
         
         
-        let req = AF.request("https://api1.binance.com/api/v3/ticker/24hr?type=mini")
+        let req = AF.request("\(EndPoints.DEFAULT_API_URL)/ticker/24hr?type=mini")
             req.responseData { [weak self] data in
                 if let data = data.data , let json = try? JSON(data: data) {
                     let ticket = json.filter{$1["symbol"].stringValue.contains("USDT")}.map{ $1["symbol"].stringValue.lowercased()}
@@ -99,7 +99,8 @@ public class DefaultMypageViewModel: MypageViewModel {
 extension DefaultMypageViewModel {
     
     public func viewDidLoad() {
-        var request = URLRequest(url: URL(string: "wss://fstream.binance.com/ws/\(self.selected)usdt@trade")!)
+        
+        var request = URLRequest(url: URL(string: "\(EndPoints.DEFAULT_SOCKET_URL)/\(self.selected)usdt@trade")!)
             request.timeoutInterval = 5
             socket2 = WebSocket(request: request)
             socket2.delegate = self

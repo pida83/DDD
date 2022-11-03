@@ -23,7 +23,7 @@ class HoodViewController: UIViewController {
     static func create(with viewModel: HoodViewModel) -> HoodViewController {
         let vc = HoodViewController()
         vc.viewModel = viewModel
-        vc.layoutModel = .init()
+        vc.layoutModel = HoodLayoutModel(actions: HoodLayoutModelAction(didConnect: vc.didConnect))
         return vc
     }
     
@@ -31,10 +31,16 @@ class HoodViewController: UIViewController {
         super.viewDidLoad()
 
         bind(to: viewModel)
+        
         viewModel.viewDidLoad()
         layoutModel.viewDidLoad(parent: self.view)
-        
-        layoutModel.chartView.delegate = self
+        layoutModel.mainTable.delegate = self
+        layoutModel.mainTable.dataSource = self
+//        layoutModel.chartView.delegate = self
+    }
+    
+    func didConnect(){
+        self.viewModel.startProcess()
     }
     
     func setData() {
@@ -106,7 +112,7 @@ class HoodViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        self.setData()
+//        self.setData()
 //        layoutModel.mainTable.delegate = self
 //        layoutModel.mainTable.dataSource = self
         
@@ -116,7 +122,7 @@ class HoodViewController: UIViewController {
     
     func bind(to viewModel: HoodViewModel) {
         viewModel.didListUpdate.subscribe(onNext: {_ in
-//            self.layoutModel.mainTable.reloadData()
+            self.layoutModel.mainTable.reloadData()
 //            self.setData()
         }).disposed(by: disposeBag)
     }

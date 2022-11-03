@@ -15,6 +15,7 @@ import Starscream
 
 protocol HoodViewModelInput {
     func viewDidLoad()
+    func startProcess()
 }
 
 protocol HoodViewModelOutput {
@@ -36,7 +37,7 @@ class DefaultHoodViewModel: HoodViewModel {
         }
     }
     
-    let apiEndPoint = "https://api1.binance.com/api/v3/ticker/24hr?type=MINI"
+    let apiEndPoint = "\(EndPoints.DEFAULT_API_URL)/ticker/24hr?type=MINI"
 //    lazy var socketURLEndpoint = "wss://stream.binance.com:9443/ws/\(self.selected.lowercased())@trade"
     var isConnected : Bool = false
     var socket: [WebSocket] = []
@@ -80,7 +81,7 @@ class DefaultHoodViewModel: HoodViewModel {
     func connect(){
         print("connect")
         // 소켓을 연결해보자
-        var request = URLRequest(url: URL(string: "wss://stream.binance.com:9443/ws/\(self.selected.lowercased())@trade")!)
+        var request = URLRequest(url: URL(string: "\(EndPoints.DEFAULT_SOCKET_URL)/\(self.selected.lowercased())@trade")!)
             request.timeoutInterval = 5
         
         var socket = WebSocket(request: request)
@@ -88,14 +89,16 @@ class DefaultHoodViewModel: HoodViewModel {
             socket.connect()
         
         self.socket.append(socket)
-        Timer.scheduledTimer(withTimeInterval: 10, repeats: false, block: disconnect(timer:))
+        Timer.scheduledTimer(withTimeInterval: 2, repeats: false, block: disconnect(timer:))
     }
     
     func disconnect(timer: Timer? = nil) {
         if self.isConnected != false {
             socket.removeFirst().disconnect()
             if timer != nil, socket.count < 1 {
+                
                 self.dataList = stateData.map{(key: $0.key , value: $0.value)}
+                print(self.dataList)
             }
             
         }
@@ -105,6 +108,12 @@ class DefaultHoodViewModel: HoodViewModel {
 // MARK: - INPUT. View event methods
 extension DefaultHoodViewModel {
     func viewDidLoad() {
+        
+//        startProcess()
+        
+    }
+    
+    func startProcess(){
         let req = AF.request(apiEndPoint)
             req.responseData { [weak self] data in
                 if let data = data.data , let json = try? JSON(data: data) {
@@ -114,11 +123,10 @@ extension DefaultHoodViewModel {
                         $1["symbol"].stringValue.hasSuffix("USDT")
                     }.map{$1}
                      .sorted(by: {$0["quoteVolume"].floatValue > $1["quoteVolume"].floatValue })
-                    self?.list = ticker[0 ... 5].map{$0}
+                    self?.list = ticker[0 ... 14].map{$0}
                     self?.listProcess()
                 }
             }
-        
     }
 }
 extension DefaultHoodViewModel: WebSocketDelegate {
@@ -155,10 +163,11 @@ extension DefaultHoodViewModel: WebSocketDelegate {
     }
     
     func progressJSON(_ data : JSON) {
+        
         if self.stateData[data["s"].stringValue] == nil {
             self.stateData[data["s"].stringValue] = .init()
         } else {
-            self.stateData[data["symbol"].stringValue] = self.stateData[data["symbol"].stringValue]?.update(data: data)
+            self.stateData[data["s"].stringValue] = self.stateData[data["s"].stringValue]?.update(data: data)
         }
         
         
