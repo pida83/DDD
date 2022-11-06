@@ -115,6 +115,8 @@ extension DefaultHoodViewModel {
     }
     
     func startProcess(){
+        self.stateData = [:]
+        self.dataList = []
         let req = AF.request(apiEndPoint)
             req.responseData { [weak self] data in
                 if let data = data.data , let json = try? JSON(data: data) {
