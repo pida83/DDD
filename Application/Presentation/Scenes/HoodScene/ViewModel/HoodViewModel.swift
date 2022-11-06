@@ -125,7 +125,7 @@ extension DefaultHoodViewModel {
                     }.map{$1}
                      .sorted(by: {$0["quoteVolume"].floatValue > $1["quoteVolume"].floatValue })
                     self?.list = ticker[0 ... 14].map{$0}
-                    self?.listProcess()
+//                    self?.listProcess()
                 }
             }
     }
