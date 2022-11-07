@@ -36,12 +36,12 @@ class DefaultHoodViewModel: HoodViewModel {
             listProcess()
         }
     }
-    
+    var map: [String] = []
     let apiEndPoint = "\(EndPoints.DEFAULT_API_URL)/ticker/24hr?type=MINI"
 //    lazy var socketURLEndpoint = "wss://stream.binance.com:9443/ws/\(self.selected.lowercased())@trade"
     var isConnected : Bool = false
     var socket: [WebSocket] = []
-    
+    var combineSocket: WebSocket!
     var modelData: StreamModel = .init()
     
     var stateData : [String: StreamModel] = [:]
@@ -70,9 +70,14 @@ class DefaultHoodViewModel: HoodViewModel {
             print(self.stateData.count)
             return
         }
+        let map = list.map{
+            $0["symbol"].stringValue.lowercased() + "@aggTrade"
+        }
+        self.map = map
+        connect()
+//        let symbol = list.removeFirst()["symbol"].stringValue
+//        self.selected = symbol
         
-        let symbol = list.removeFirst()["symbol"].stringValue
-        self.selected = symbol
     }
     
     
@@ -80,29 +85,36 @@ class DefaultHoodViewModel: HoodViewModel {
     func connect(){
         print("connect")
         // 소켓을 연결해보자
-        var request = URLRequest(url: URL(string: "\(EndPoints.DEFAULT_SOCKET_URL)/\(self.selected.lowercased())@trade")!)
+//        var request = URLRequest(url: URL(string: "\(EndPoints.DEFAULT_SOCKET_URL)/\(self.selected.lowercased())@trade")!)
+        var request = URLRequest(url: URL(string: "\(EndPoints.DEFAULT_SOCKET_URL)/")!)
             request.timeoutInterval = 5
         
-        var socket = WebSocket(request: request)
+        let socket = WebSocket(request: request)
             socket.delegate = self
             socket.connect()
         
-        self.socket.append(socket)
+//        self.socket.append(socket)
+        self.combineSocket = socket
         Timer.scheduledTimer(withTimeInterval: 2, repeats: false, block: disconnect(timer:))
     }
     
     func disconnect(timer: Timer? = nil) {
-        if self.isConnected != false {
-            socket.removeFirst().disconnect()
-            if timer != nil, socket.count < 1 {
-                
-                self.dataList = stateData.map{(key: $0.key.lowercased() , value: $0.value)}
-                    .sorted(by: { first, second in
-                    first.value.dps > second.value.dps
-                })
-            }
-            
-        }
+        self.combineSocket.disconnect()
+        self.dataList = stateData.map{(key: $0.key.lowercased() , value: $0.value)}
+            .sorted(by: { first, second in
+            first.value.dps > second.value.dps
+        })
+//        if self.isConnected != false {
+//            socket.removeFirst().disconnect()
+//            if timer != nil, socket.count < 1 {
+//
+//                self.dataList = stateData.map{(key: $0.key.lowercased() , value: $0.value)}
+//                    .sorted(by: { first, second in
+//                    first.value.dps > second.value.dps
+//                })
+//            }
+//
+//        }
     }
 }
 
@@ -127,6 +139,7 @@ extension DefaultHoodViewModel {
                     }.map{$1}
                      .sorted(by: {$0["quoteVolume"].floatValue > $1["quoteVolume"].floatValue })
                     self?.list = ticker[0 ... 14].map{$0}
+                    
 //                    self?.listProcess()
                 }
             }
@@ -138,7 +151,15 @@ extension DefaultHoodViewModel: WebSocketDelegate {
             case .connected(let headers):
                 self.isConnected = true
                 print("websocket is connected aa: \(headers)")
+            let data : [String: Any] = ["method": "SUBSCRIBE",
+                                        "params": map,
+                                        "id": 1]
             
+            guard let dat = try? JSON(data).rawString() else {
+                return
+            }
+            
+            self.combineSocket.write(string: dat)
             case .text(let string):
                 progressJSON(JSON(parseJSON: string))
             case .binary(let data):
@@ -166,8 +187,13 @@ extension DefaultHoodViewModel: WebSocketDelegate {
     }
     
     func progressJSON(_ data : JSON) {
+        if data["result"].exists() {
+            return
+        }
+        
         if self.stateData[data["s"].stringValue] == nil {
             self.stateData[data["s"].stringValue] = .init()
+            self.stateData[data["s"].stringValue]?.update(data: data)
         } else {
             self.stateData[data["s"].stringValue] = self.stateData[data["s"].stringValue]?.update(data: data)
         }
