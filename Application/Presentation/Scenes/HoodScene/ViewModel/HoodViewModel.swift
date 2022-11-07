@@ -190,7 +190,7 @@ extension DefaultHoodViewModel: WebSocketDelegate {
         if data["result"].exists() {
             return
         }
-        print(data)
+//        print(data)
         if self.stateData[data["s"].stringValue] == nil {
             self.stateData[data["s"].stringValue] = .init()
             self.stateData[data["s"].stringValue]?.update(data: data)

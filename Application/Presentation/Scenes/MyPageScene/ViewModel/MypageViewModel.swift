@@ -76,7 +76,8 @@ class DefaultMypageViewModel: MypageViewModel {
     
     // MARK: - OUTPUT
     init() {
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [weak self] _ in
+        
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [weak self] timers in
             if self!.data.count > 7 {
                 self!.data.removeFirst()
             }
@@ -85,7 +86,6 @@ class DefaultMypageViewModel: MypageViewModel {
             self?.data.append(self!.counter)
             self!.counter.resetState()
         })
-        
         
         let req = AF.request("\(EndPoints.DEFAULT_API_URL)/ticker/24hr?type=mini")
             req.responseData { [weak self] data in
@@ -102,11 +102,19 @@ extension DefaultMypageViewModel {
     
     func viewDidLoad() {
         
+        
+    }
+    
+    func connect(){
+        
         var request = URLRequest(url: URL(string: "\(EndPoints.DEFAULT_SOCKET_URL)/\(self.selected)usdt@trade")!)
             request.timeoutInterval = 5
             socket2 = WebSocket(request: request)
             socket2.delegate = self
             socket2.connect()
+        
+       
+        
     }
     
     func didInputSelected(name: String) {
@@ -114,12 +122,20 @@ extension DefaultMypageViewModel {
     }
     
     func didTapDisconnect() {
+        
+        
         self.socket2.disconnect()
     }
     
     func reconnect() {
+        
 //        print("recon")
-        socket2.disconnect()
+        if self.isConnected {
+            socket2.disconnect()
+            
+        }
+        
+        self.connect()
     }
 }
 
@@ -133,7 +149,7 @@ extension DefaultMypageViewModel : WebSocketDelegate {
             print("websocket is connected: \(headers) \(self.selected)")
             case .disconnected(let reason, let code):
                 isConnected = false
-                self.socket2.connect()
+//                self.socket2.connect()
                 print("websocket is disconnected: \(reason) with code: \(code)")
             case .text(let string):
                 progressJSON(JSON(parseJSON: string))
@@ -144,17 +160,19 @@ extension DefaultMypageViewModel : WebSocketDelegate {
             case .pong(_):
                 break
             case .viabilityChanged(_):
+            print("viabilityChanged")
                 break
             case .reconnectSuggested(_):
                 print("recon")
-            self.socket2.connect()
+            self.reconnect()
                 break
             case .cancelled:
+            print("cancelled")
                 isConnected = false
-            self.socket2.connect()
+//            self.reconnect()
             case .error(let error):
                 isConnected = false
-                self.socket2.connect()
+                self.reconnect()
                 handleError(error)
             }
     }
