@@ -9,7 +9,7 @@
 import UIKit
 
 
-public class MypageDIContainer: DIContainer {
+class MypageDIContainer: DIContainer {
     init() { }
     
 //    // MARK: Repository
@@ -31,7 +31,7 @@ public class MypageDIContainer: DIContainer {
 }
 
 extension MypageDIContainer: MypageCoordinatorDependencies {
-    public func makeMypageViewController() -> MypageViewController {
+    func makeMypageViewController() -> MypageViewController {
         let vc = MypageViewController.create(with: makeViewModel())
             vc.view.backgroundColor = .darkGray
         return vc

@@ -10,11 +10,11 @@ import UIKit
 
 
 
-public class SharedConst {
-    public static let shared: SharedConst = SharedConst()
+class SharedConst {
+    static let shared: SharedConst = SharedConst()
     
-    public var paddingTop: CGFloat    = 0
-    public var paddingBottom: CGFloat = 0
-    public var screenSize             = UIScreen.main.bounds
-//    public var defulatColor : UIColor = UIColor(red: <#T##CGFloat#>, green: <#T##CGFloat#>, blue: <#T##CGFloat#>, alpha: <#T##CGFloat#>)
+    var paddingTop: CGFloat    = 0
+    var paddingBottom: CGFloat = 0
+    var screenSize             = UIScreen.main.bounds
+//    var defulatColor : UIColor = UIColor(red: <#T##CGFloat#>, green: <#T##CGFloat#>, blue: <#T##CGFloat#>, alpha: <#T##CGFloat#>)
 }

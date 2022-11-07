@@ -9,7 +9,7 @@
 import Foundation
 
 
-public protocol Coordinator {
+protocol Coordinator {
     var childCoordinator : [Coordinator] { get set }
     func start()
 }

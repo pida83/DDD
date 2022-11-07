@@ -10,20 +10,20 @@ import UIKit
 import Alamofire
 import RxSwift
 
-public class MypageViewController: UIViewController {
+class MypageViewController: UIViewController {
     
     var viewModel: MypageViewModel!
     var layoutModel: MypageLayoutModel!
     var disposeBag: DisposeBag = .init()
     
-    public static func create(with viewModel: MypageViewModel) -> MypageViewController {
+    static func create(with viewModel: MypageViewModel) -> MypageViewController {
         let vc = MypageViewController()
             vc.viewModel = viewModel
             vc.layoutModel = .init()
         return vc
     }
     
-    public override func viewDidLoad() {
+    override func viewDidLoad() {
         super.viewDidLoad()
         
         bind(to: viewModel)
@@ -59,14 +59,14 @@ public class MypageViewController: UIViewController {
         }).disposed(by: disposeBag)
     }
     
-    public override func viewWillAppear(_ animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         addKeyboardNotifications()
         layoutModel.mainTable.delegate = self
         layoutModel.mainTable.dataSource = self
     }
     
-    public override func viewWillDisappear(_ animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         removeKeyboardNotifications()
     }
@@ -118,11 +118,12 @@ public class MypageViewController: UIViewController {
         }
     }
     
-    public func cancelAction(){
+    func cancelAction(){
         self.view.endEditing(true)
+        self.viewModel.didTapDisconnect()
     }
     
-    public func confirmAction() {
+    func confirmAction() {
         if self.layoutModel.inputView.hasText,  let name = self.layoutModel.inputView.text {
             self.viewModel.didInputSelected(name: name)
         }
@@ -131,16 +132,16 @@ public class MypageViewController: UIViewController {
 }
 
 extension MypageViewController: UITableViewDataSource {
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 //        print("test \(viewModel.data.count)")
         return viewModel.data.count
     }
     
-    public func numberOfSections(in tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         1
     }
     
-    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         guard let cell = tableView.dequeueReusableCell(withIdentifier: MypageTableCell.identifier) as? MypageTableCell else { return UITableViewCell() }
         
@@ -152,11 +153,11 @@ extension MypageViewController: UITableViewDataSource {
 }
 
 extension MypageViewController: UITableViewDelegate {
-    public func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }
 
-    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
 
         let cellHeight = tableView.frame.height / layoutModel.TABLE_ROW_PER_PAGE
 
@@ -167,24 +168,24 @@ extension MypageViewController: UITableViewDelegate {
 
 
 extension MypageViewController: UIPickerViewDelegate, UIPickerViewDataSource {
-    public func numberOfComponents(in pickerView: UIPickerView) -> Int {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
         1
     }
     
-    public func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         return viewModel.lists.count
     }
     
-    public func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         return viewModel.lists[row]
     }
        
-    public func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         print(viewModel.lists[row])
         self.viewModel.didInputSelected(name: viewModel.lists[row])
     }
     
-    public func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
+    func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
         return 50
     }
     

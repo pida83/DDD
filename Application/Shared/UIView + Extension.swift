@@ -9,11 +9,11 @@
 import UIKit
 
 extension UIView {
-//    public func getSafeAreaLayoutGuide()-> UILayoutGuide {
+//    func getSafeAreaLayoutGuide()-> UILayoutGuide {
 //        return self.safeAreaLayoutGuide
 //    }
 //    
-//    public func addSubViewToSafeAreaGuide(subView: UIView) {
+//    func addSubViewToSafeAreaGuide(subView: UIView) {
 //        self.addSubview(subView)
 //        subView.snp.makeConstraints{
 //            $0.edges.equalTo(getSafeAreaLayoutGuide())

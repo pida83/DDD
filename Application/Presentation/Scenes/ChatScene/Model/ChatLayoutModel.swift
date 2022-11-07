@@ -10,7 +10,7 @@ import UIKit
 import Then
 import SnapKit
 
-public struct ChatLayoutModel {
+struct ChatLayoutModel {
     
     var parentView: UIView = UIView(frame: .zero).then{
         $0.backgroundColor = CloneProjectAsset.defaultColor.color
@@ -24,7 +24,7 @@ public struct ChatLayoutModel {
         $0.setTitle("sendData", for: .normal)
     }
     
-    public init() {
+    init() {
         
     }
     

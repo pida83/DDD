@@ -11,20 +11,20 @@ import RxSwift
 import RxCocoa
 import RxGesture
 
-public class HomeViewController: UIViewController {
+class HomeViewController: UIViewController {
     
     var disposeBag: DisposeBag = .init()
     var viewModel: HomeViewModel!
     var layoutModel: HomeLayoutModel!
     
-    public static func create(with viewModel: HomeViewModel) -> HomeViewController {
+    static func create(with viewModel: HomeViewModel) -> HomeViewController {
         let vc = HomeViewController()
             vc.viewModel = viewModel
             vc.layoutModel = .init()
         return vc
     }
     
-    public override func viewDidLoad() {
+    override func viewDidLoad() {
         super.viewDidLoad()
         
         viewModel.viewDidLoad()
@@ -33,7 +33,7 @@ public class HomeViewController: UIViewController {
         
     }
     
-    public override func viewDidAppear(_ animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         layoutModel.mainTable.delegate = self
         layoutModel.mainTable.dataSource = self
@@ -52,16 +52,16 @@ public class HomeViewController: UIViewController {
 }
 
 extension HomeViewController: UITableViewDataSource {
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         print("test \(viewModel.data.count)")
         return viewModel.data.count
     }
     
-    public func numberOfSections(in tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         1
     }
     
-    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         guard let cell = tableView.dequeueReusableCell(withIdentifier: HomeTableCell.identifier) as? HomeTableCell else { return UITableViewCell() }
         
@@ -76,18 +76,18 @@ extension HomeViewController: UITableViewDataSource {
 }
 
 extension HomeViewController: UITableViewDelegate {
-    public func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }
 
-    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
         let cellHeight = tableView.frame.height / layoutModel.TABLE_ROW_PER_PAGE
             
         return UITableView.automaticDimension
     }
     
-//    public func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+//    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
 //        return nil
 ////        // 먼저 선택한 셀이 있다
 ////        if let row = tableView.indexPathForSelectedRow, let cell = tableView.cellForRow(at: row) {
@@ -103,7 +103,7 @@ extension HomeViewController: UITableViewDelegate {
 ////        return indexPath
 //    }
 //
-//    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 ////        guard let mapService = self.mapService else {
 ////            return
 ////        }

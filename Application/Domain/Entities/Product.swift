@@ -9,16 +9,16 @@
 import Foundation
 import SwiftProtobuf
 
-public struct Product : Codable , Equatable, Identifiable {
-    public typealias Identifier = String
+struct Product : Codable , Equatable, Identifiable {
+    typealias Identifier = String
     
-    public let id : Identifier
-    public let comment: String
-    public let address: String
-    public let releaseTime: String
-    public let price : String
+    let id : Identifier
+    let comment: String
+    let address: String
+    let releaseTime: String
+    let price : String
     
-    public init(id: Identifier, comment: String, address: String, releaseTime: String, price: String) {
+    init(id: Identifier, comment: String, address: String, releaseTime: String, price: String) {
         self.id = id
         self.comment = comment
         self.address = address
@@ -28,12 +28,12 @@ public struct Product : Codable , Equatable, Identifiable {
 }
 
 
-public struct ProductPage : Equatable{
-    public let page: Int
-    public let totalPages: Int
-    public let list : [Product]
+struct ProductPage : Equatable{
+    let page: Int
+    let totalPages: Int
+    let list : [Product]
     
-    public init(page: Int, totalPages: Int, list: [Product]) {
+    init(page: Int, totalPages: Int, list: [Product]) {
         self.page       = page
         self.totalPages = totalPages
         self.list   = list

@@ -10,7 +10,7 @@ import UIKit
 
 
 
-public class ChatDIContainer: DIContainer {
+class ChatDIContainer: DIContainer {
     init() { }
     
 //    // MARK: Repository
@@ -31,7 +31,7 @@ public class ChatDIContainer: DIContainer {
 }
 
 extension ChatDIContainer: ChatCoordinatorDependencies {
-    public func makeChatViewController() -> ChatViewController {
+    func makeChatViewController() -> ChatViewController {
         let vc = ChatViewController.create(with: makeViewModel())
             vc.view.backgroundColor = .magenta
         return vc

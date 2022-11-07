@@ -8,26 +8,26 @@
 
 import Foundation
 
-public protocol ChatViewModelInput {
+protocol ChatViewModelInput {
     func viewDidLoad()
 }
 
-public  protocol ChatViewModelOutput {
+ protocol ChatViewModelOutput {
     
 }
 
-public protocol ChatViewModel: ChatViewModelInput, ChatViewModelOutput { }
+protocol ChatViewModel: ChatViewModelInput, ChatViewModelOutput { }
 
-public class DefaultChatViewModel: ChatViewModel {
+class DefaultChatViewModel: ChatViewModel {
     
     // MARK: - OUTPUT
-    public init() {
+    init() {
         
     }
 }
 
 // MARK: - INPUT. View event methods
 extension DefaultChatViewModel {
-    public func viewDidLoad() {
+    func viewDidLoad() {
     }
 }

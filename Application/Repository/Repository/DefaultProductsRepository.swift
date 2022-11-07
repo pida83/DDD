@@ -11,13 +11,13 @@ import SwiftyJSON
 
 
 
-public class DefaultProductsRepository: ProductRepository {
+class DefaultProductsRepository: ProductRepository {
     
-    public init(){
+    init(){
         
     }
     
-    public func fetchProductList(query: [String : Any], page : Int, completion: @escaping (Result<ProductPage, Error>) -> Void) {
+    func fetchProductList(query: [String : Any], page : Int, completion: @escaping (Result<ProductPage, Error>) -> Void) {
         let provider = APIEndPoints.getProducts(with: .init(page: page))
         
             provider.request(.list(query), completion: { result in

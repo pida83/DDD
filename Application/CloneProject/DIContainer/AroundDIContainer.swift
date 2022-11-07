@@ -9,7 +9,7 @@
 import UIKit
 
 
-public class AroundDIContainer: DIContainer {
+class AroundDIContainer: DIContainer {
     init() { }
     
 //    // MARK: Repository
@@ -29,7 +29,7 @@ public class AroundDIContainer: DIContainer {
 }
 
 extension AroundDIContainer: AroundCoordinatorDependencies {
-    public func makeAroundViewController() -> AroundViewController {
+    func makeAroundViewController() -> AroundViewController {
         let vc = AroundViewController.create(with: makeViewModel())
             vc.view.backgroundColor = .cyan
         return vc

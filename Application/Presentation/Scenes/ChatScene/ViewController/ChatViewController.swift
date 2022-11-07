@@ -15,14 +15,14 @@ import Starscream
 import SwiftProtobuf
 import NIO
 
-public class ChatViewController: UIViewController {
+class ChatViewController: UIViewController {
     
     var viewModel: ChatViewModel!
     var layoutModel: ChatLayoutModel!
     var disposeBag: DisposeBag = .init()
     var tcp : TCPTransport!
     
-    public static func create(with viewModel: ChatViewModel) -> ChatViewController {
+    static func create(with viewModel: ChatViewModel) -> ChatViewController {
         let vc = ChatViewController()
         vc.viewModel = viewModel
         vc.layoutModel = .init()
@@ -33,7 +33,7 @@ public class ChatViewController: UIViewController {
         
     }
     
-    public override func viewDidLoad() {
+    override func viewDidLoad() {
         super.viewDidLoad()
         Task {
             
@@ -121,7 +121,7 @@ public class ChatViewController: UIViewController {
     }
 }
 extension ChatViewController: TransportEventClient {
-    public func connectionChanged(state: Starscream.ConnectionState) {
+    func connectionChanged(state: Starscream.ConnectionState) {
         switch state {
         case .connected:
             print("connected")

@@ -9,23 +9,23 @@
 
 import UIKit
 
-public protocol ChatCoordinatorDependencies {
+protocol ChatCoordinatorDependencies {
     func makeChatViewController() -> ChatViewController
 }
 
-public class ChatCoordinator: Coordinator {
-    public var childCoordinator: [Coordinator] = .init()
+class ChatCoordinator: Coordinator {
+    var childCoordinator: [Coordinator] = .init()
     var navigationController : UINavigationController
     var dependencies: ChatCoordinatorDependencies
     
     
     
-    public init(navigationController: UINavigationController, dependencies: ChatCoordinatorDependencies) {
+    init(navigationController: UINavigationController, dependencies: ChatCoordinatorDependencies) {
         self.navigationController = navigationController
         self.dependencies         = dependencies
     }
     
-    public func start() {
+    func start() {
         let chatVC = self.dependencies.makeChatViewController()
         self.navigationController.pushViewController(chatVC, animated: false)
     }

@@ -11,39 +11,39 @@ import RxCocoa
 import RxGesture
 
 
-public protocol HomeViewModelInput {
+protocol HomeViewModelInput {
     func viewDidLoad()
 }
 
-public protocol HomeViewModelOutput {
+protocol HomeViewModelOutput {
     var data : [Product] {get}
     var didItemLoaded: PublishSubject<Void> { get }
 //    var weatherLoded: PublishSubject<Void> { get }
 //    var didBookmarkSelected: PublishSubject<Void> { get }
 }
 
-public protocol HomeViewModel: HomeViewModelInput, HomeViewModelOutput { }
+protocol HomeViewModel: HomeViewModelInput, HomeViewModelOutput { }
 
-public class DefaultHomeViewModel: HomeViewModel {
+class DefaultHomeViewModel: HomeViewModel {
     
-    public var data: [Product] = [] {
+    var data: [Product] = [] {
         didSet {
             print("load")
             self.didItemLoaded.onNext(())
         }
     }
-    public var didItemLoaded: PublishSubject<Void> = .init()
+    var didItemLoaded: PublishSubject<Void> = .init()
     var useCase: ListProductUseCase
     
     // MARK: - OUTPUT
-    public init(useCase: ListProductUseCase){
+    init(useCase: ListProductUseCase){
         self.useCase = useCase
     }
 }
 
 // MARK: - INPUT. View event methods
 extension DefaultHomeViewModel {
-    public func viewDidLoad() {
+    func viewDidLoad() {
         
         useCase.execute(requestValue: ListProductUseCaseRequestValue(page: 3, pageLimit: 10) , completion: { result in
             switch result {

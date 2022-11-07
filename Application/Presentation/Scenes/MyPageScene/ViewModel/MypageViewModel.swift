@@ -16,13 +16,15 @@ import Alamofire
 
 
 
-public protocol MypageViewModelInput {
+protocol MypageViewModelInput {
     func viewDidLoad()
     
     func didInputSelected(name: String)
+    
+    func didTapDisconnect()
 }
 
-public protocol MypageViewModelOutput {
+protocol MypageViewModelOutput {
     var outModel: PublishSubject<StreamModel> {get set}
     
     var output_didUpdate : PublishSubject<Bool> {get set}
@@ -32,30 +34,30 @@ public protocol MypageViewModelOutput {
     var lists : [String] {get set}
 }
 
-public protocol MypageViewModel: MypageViewModelInput, MypageViewModelOutput {
+protocol MypageViewModel: MypageViewModelInput, MypageViewModelOutput {
     var selected: String {get set}
 }
 
-public class DefaultMypageViewModel: MypageViewModel {
+class DefaultMypageViewModel: MypageViewModel {
     
-    public var outModel: PublishSubject<StreamModel> = .init()
-    public var output_didUpdate : PublishSubject<Bool> = .init()
-    public var output_didUpdateList : PublishSubject<Bool> = .init()
-    public var output_name: PublishSubject<String> = .init()
+    var outModel: PublishSubject<StreamModel> = .init()
+    var output_didUpdate : PublishSubject<Bool> = .init()
+    var output_didUpdateList : PublishSubject<Bool> = .init()
+    var output_name: PublishSubject<String> = .init()
     
-    public var lists : [String] = .init() {
+    var lists : [String] = .init() {
         didSet {
             output_didUpdateList.onNext(true)
         }
     }
 
-    public var selected : String  = "btc" {
+    var selected : String  = "btc" {
         didSet {
             self.reconnect()
         }
     }
     
-    public var data: [StreamModel] = [] {
+    var data: [StreamModel] = [] {
         didSet {
             output_didUpdate.onNext(true)
         }
@@ -73,7 +75,7 @@ public class DefaultMypageViewModel: MypageViewModel {
     
     
     // MARK: - OUTPUT
-    public init() {
+    init() {
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [weak self] _ in
             if self!.data.count > 7 {
                 self!.data.removeFirst()
@@ -98,7 +100,7 @@ public class DefaultMypageViewModel: MypageViewModel {
 // MARK: - INPUT. View event methods
 extension DefaultMypageViewModel {
     
-    public func viewDidLoad() {
+    func viewDidLoad() {
         
         var request = URLRequest(url: URL(string: "\(EndPoints.DEFAULT_SOCKET_URL)/\(self.selected)usdt@trade")!)
             request.timeoutInterval = 5
@@ -107,11 +109,15 @@ extension DefaultMypageViewModel {
             socket2.connect()
     }
     
-    public func didInputSelected(name: String) {
+    func didInputSelected(name: String) {
         self.selected = name.lowercased()
     }
     
-    public func reconnect() {
+    func didTapDisconnect() {
+        self.socket2.disconnect()
+    }
+    
+    func reconnect() {
 //        print("recon")
         socket2.disconnect()
     }
@@ -119,7 +125,7 @@ extension DefaultMypageViewModel {
 
 
 extension DefaultMypageViewModel : WebSocketDelegate {
-    public func didReceive(event: Starscream.WebSocketEvent, client: Starscream.WebSocket) {
+    func didReceive(event: Starscream.WebSocketEvent, client: Starscream.WebSocket) {
         switch event {
             case .connected(let headers):
                 isConnected = true
@@ -170,23 +176,23 @@ extension DefaultMypageViewModel : WebSocketDelegate {
 
 @propertyWrapper
 struct FloorNumber {
-    public init(wrappedValue initialValue: Int) {
+    init(wrappedValue initialValue: Int) {
         wrappedValue = Int(floor(Double(initialValue)))
     }
     
-    public var wrappedValue: Int
+    var wrappedValue: Int
 }
 
-//public struct Archive<ValueType> {
-//    public init(wrappedValue initialValue: ValueType) {
+//struct Archive<ValueType> {
+//    init(wrappedValue initialValue: ValueType) {
 //        wrappedValue = initialValue
 //    }
 //
-//    public var wrappedValue: ValueType
+//    var wrappedValue: ValueType
 //}
 
 
-public struct StreamModel {
+struct StreamModel {
     @FloorNumber var upCnt : Int        = 0
     @FloorNumber var downCnt : Int      = 0
     @FloorNumber var dps : Int          = 0

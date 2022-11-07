@@ -8,23 +8,23 @@
 
 import UIKit
 
-public protocol HomeCoordinatorDependencies {
+protocol HomeCoordinatorDependencies {
     func makeHomeViewController() -> HomeViewController
 }
 
 
-public class HomeCoordinator: Coordinator {
-    public var childCoordinator: [Coordinator] = .init()
+class HomeCoordinator: Coordinator {
+    var childCoordinator: [Coordinator] = .init()
     var navigationController : UINavigationController
     var dependencies:  HomeCoordinatorDependencies
     
     
-    public init(navigationController: UINavigationController, dependencies:  HomeCoordinatorDependencies) {
+    init(navigationController: UINavigationController, dependencies:  HomeCoordinatorDependencies) {
         self.navigationController = navigationController
         self.dependencies         = dependencies
     }
     
-    public func start() {
+    func start() {
         let homeVC = dependencies.makeHomeViewController()
         navigationController.pushViewController(homeVC, animated: false)
         

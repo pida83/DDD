@@ -11,16 +11,16 @@ import SnapKit
 
 
 
-public class CommonMenu: UIView {    
-    public override init(frame: CGRect) {
+class CommonMenu: UIView {    
+    override init(frame: CGRect) {
         super.init(frame: frame)
     }
     
-    public required init?(coder: NSCoder) {
+    required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
     
-    public override func didMoveToWindow() {
+    override func didMoveToWindow() {
         
         self.backgroundColor = .magenta
         

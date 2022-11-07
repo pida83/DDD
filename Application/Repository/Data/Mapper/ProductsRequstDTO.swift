@@ -10,6 +10,6 @@ import Foundation
 import Moya
 
 
-public struct ProductsRequstDTO {
+struct ProductsRequstDTO {
     let page: Int
 }

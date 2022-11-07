@@ -13,20 +13,12 @@ import RxSwift
 import RxCocoa
 import RxGesture
 
-class MypageAction {
+struct MypageAction {
     var cancelAction : (()-> Void)
     var confirmAction : (()-> Void)
-    init(cancelAction: @escaping () -> Void, confirmAction: @escaping () -> Void) {
-        self.cancelAction = cancelAction
-        self.confirmAction = confirmAction
-    }
-    
-    deinit {
-        print("deinit:::::::::::")
-    }
 }
 
-public class MypageLayoutModel {
+class MypageLayoutModel {
     
     
     var disposeBag: DisposeBag = .init()
@@ -97,7 +89,7 @@ public class MypageLayoutModel {
     
     var action : MypageAction?
     
-    public init() {
+    init() {
         
     }
     

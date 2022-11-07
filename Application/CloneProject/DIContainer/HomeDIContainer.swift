@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class HomeDIContainer: DIContainer {
+class HomeDIContainer: DIContainer {
     init() { }
     
 //    // MARK: Repository
@@ -33,7 +33,7 @@ public class HomeDIContainer: DIContainer {
 
 extension HomeDIContainer: HomeCoordinatorDependencies {
     
-    public func makeHomeViewController() -> HomeViewController {
+    func makeHomeViewController() -> HomeViewController {
         let vc = HomeViewController.create(with: makeViewModel())
         return vc
     }

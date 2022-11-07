@@ -9,6 +9,6 @@
 import Foundation
 
 
-public protocol ProductRepository {
+protocol ProductRepository {
     func fetchProductList(query: [String : Any], page:Int, completion: @escaping (Result<ProductPage, Error>) -> Void)
 }

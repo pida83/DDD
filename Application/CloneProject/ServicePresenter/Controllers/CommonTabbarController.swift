@@ -12,9 +12,9 @@ import RxSwift
 import RxCocoa
 import RxGesture
 
-public enum TabItem: Int {
+enum TabItem: Int {
     case home = 0, hood , around , chat , mypage = 4
-    public var title : String {
+    var title : String {
         switch self {
         case .home:
             return "홈"
@@ -29,12 +29,12 @@ public enum TabItem: Int {
         }
     }
 }
-public class CustomTabbar: UITabBar {
+class CustomTabbar: UITabBar {
     
-    public override init(frame: CGRect) {
+    override init(frame: CGRect) {
         super.init(frame: frame)
     }
-    public required init?(coder: NSCoder) {
+    required init?(coder: NSCoder) {
         super.init(coder: coder)
         
     }
@@ -43,7 +43,7 @@ public class CustomTabbar: UITabBar {
     
     
 }
-public class CommonTabbarController: UITabBarController {
+class CommonTabbarController: UITabBarController {
     
     let toolbar = CommonMenuBar(frame: .zero)
     
@@ -64,7 +64,7 @@ public class CommonTabbarController: UITabBarController {
     var disposeBag: DisposeBag = .init()
     
     
-    public override func viewDidLoad() {
+    override func viewDidLoad() {
         super.viewDidLoad()
         self.view.addSubview(topView)
         
@@ -83,7 +83,7 @@ public class CommonTabbarController: UITabBarController {
         
     }
     
-    public override func viewWillAppear(_ animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print(SharedConst.shared.paddingBottom)
         print(SharedConst.shared.paddingTop)
@@ -127,19 +127,19 @@ public class CommonTabbarController: UITabBarController {
 
 extension CommonTabbarController: UITabBarControllerDelegate {
     
-    public override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
+    override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
 //        print(#function, item)
     }
     
     // 변경 전 뷰컨과 인덱
-    public func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         let selected = TabItem(rawValue: tabBarController.selectedIndex)
         let navi = viewController as? UINavigationController
 //        print("Should select viewController:  \(navi?.topViewController) \(tabBarController.selectedIndex) \(selected?.title ?? "none")")
            return true
        }
     
-    public func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
         let selected = TabItem(rawValue: tabBarController.selectedIndex)
         let navi = viewController as? UINavigationController
 //        print("did select viewController: \(navi?.topViewController) \(viewController) \(tabBarController.selectedIndex) \(selected?.title ?? "none")")

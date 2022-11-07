@@ -10,7 +10,7 @@ import Foundation
 import Moya
 import SwiftyJSON
 
-public struct APIEndPoints {
+struct APIEndPoints {
     static func getProducts(with: ProductsRequstDTO) -> MoyaProvider<APIEndPointService>{
         let provider = MoyaProvider<APIEndPointService>()
         return provider
@@ -18,35 +18,35 @@ public struct APIEndPoints {
 
 }
 
-public enum APIEndPointService {
+enum APIEndPointService {
     case list([String : Any])
 }
 
 extension APIEndPointService: TargetType {
-    public var baseURL: URL {
+    var baseURL: URL {
 //        return URL(string: "http://211.252.37.224/rest")!
          return URL(string: "http://localhost:3000")!
     
     }
-    public var path: String {
+    var path: String {
         switch self {
             case .list: return ""
         }
     }
 
-    public var method: Moya.Method {
+    var method: Moya.Method {
         switch self {
         case .list : return .post
         }
     }
 
     // 4
-    public var sampleData: Data {
+    var sampleData: Data {
       return Data()
     }
 
     // 5
-      public var task: Task {
+      var task: Task {
           switch self {
           case .list(let param):
               
@@ -72,12 +72,12 @@ extension APIEndPointService: TargetType {
       }
 
       // 6
-      public var headers: [String: String]? {
+      var headers: [String: String]? {
           return ["Content-Type": "application/json"]
       }
 
       // 7
-      public var validationType: ValidationType {
+      var validationType: ValidationType {
           return .successCodes
       }
 

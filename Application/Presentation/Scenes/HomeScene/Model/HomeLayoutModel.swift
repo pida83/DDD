@@ -16,7 +16,7 @@ import RxGesture
 
 
 
-public struct HomeLayoutModel {
+struct HomeLayoutModel {
     var disposeBag: DisposeBag = .init()
     
     var test: UIView = UIService.shared.getUIView()
@@ -45,7 +45,7 @@ public struct HomeLayoutModel {
     
     let TABLE_ROW_PER_PAGE : CGFloat = 5
     
-    public init() {
+    init() {
         
     }
     

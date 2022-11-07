@@ -11,7 +11,7 @@ import Then
 import SnapKit
 import SpriteKit
 
-public struct AroundLayoutModel {
+struct AroundLayoutModel {
     
     var parentView: UIView = UIView(frame: .zero).then{
         $0.backgroundColor = CloneProjectAsset.defaultColor.color
@@ -23,7 +23,7 @@ public struct AroundLayoutModel {
     
     var skView : SKView = .init(frame: .zero)
     
-    public init() {
+    init() {
         
     }
     

@@ -11,8 +11,8 @@ import SnapKit
 import Then
 
 
-public class UIService {
-    public static let shared: UIService = UIService()
+class UIService {
+    static let shared: UIService = UIService()
     
     func getUIView() -> UIView{
         return UIView(frame: .zero).then{ $0.backgroundColor = CloneProjectAsset.defaultColor.color }

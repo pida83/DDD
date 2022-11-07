@@ -9,18 +9,18 @@
 import Foundation
 
 
-public protocol ListProductUseCase {
+protocol ListProductUseCase {
     func execute(requestValue: ListProductUseCaseRequestValue, completion: @escaping (Result<ProductPage, Error>) -> Void )
 }
 
-public class DefaultListProductUseCase : ListProductUseCase {
+class DefaultListProductUseCase : ListProductUseCase {
     private let productRepository: ProductRepository
     
-    public init(productRepository: ProductRepository) {
+    init(productRepository: ProductRepository) {
         self.productRepository = productRepository
     }
     
-    public func execute(requestValue: ListProductUseCaseRequestValue, completion: @escaping (Result<ProductPage, Error>) -> Void) {
+    func execute(requestValue: ListProductUseCaseRequestValue, completion: @escaping (Result<ProductPage, Error>) -> Void) {
         productRepository.fetchProductList(query: requestValue.query , page: requestValue.page) { result in
             completion(result)
         }
@@ -28,15 +28,15 @@ public class DefaultListProductUseCase : ListProductUseCase {
     
 }
 
-public struct ListProductUseCaseRequestValue {
-    public let page: Int
-    public let pageLimit: Int
+struct ListProductUseCaseRequestValue {
+    let page: Int
+    let pageLimit: Int
     
-    public var query : [String: Any] {
+    var query : [String: Any] {
         return ["startPage": page, "pageSize" : pageLimit]
     }
     
-    public init(page: Int, pageLimit: Int) {
+    init(page: Int, pageLimit: Int) {
         self.page      = page
         self.pageLimit = pageLimit
     }

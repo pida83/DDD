@@ -9,27 +9,27 @@
 import Foundation
 import Alamofire
 
-public protocol AroundViewModelInput {
+protocol AroundViewModelInput {
     func viewDidLoad()
 }
 
-public protocol AroundViewModelOutput {
+protocol AroundViewModelOutput {
     
 }
 
-public protocol AroundViewModel: AroundViewModelInput, AroundViewModelOutput { }
+protocol AroundViewModel: AroundViewModelInput, AroundViewModelOutput { }
 
-public class DefaultAroundViewModel: AroundViewModel {
+class DefaultAroundViewModel: AroundViewModel {
     
     // MARK: - OUTPUT
 
-    public init() {
+    init() {
         
     }
 }
 
 // MARK: - INPUT. View event methods
 extension DefaultAroundViewModel {
-    public func viewDidLoad() {
+    func viewDidLoad() {
     }
 }

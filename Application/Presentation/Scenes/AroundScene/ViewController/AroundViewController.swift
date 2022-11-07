@@ -18,7 +18,7 @@ import SwiftProtobuf
 
 //import Lottie
 
-public class AroundViewController: UIViewController {
+class AroundViewController: UIViewController {
     let vue = UIImageView(image: UIImage(named: "Particle"))
     var viewModel: AroundViewModel!
     var layoutModel: AroundLayoutModel!
@@ -28,14 +28,14 @@ public class AroundViewController: UIViewController {
         $0.backgroundColor = .red
     }
     
-    public static func create(with viewModel: AroundViewModel) -> AroundViewController {
+    static func create(with viewModel: AroundViewModel) -> AroundViewController {
         let vc = AroundViewController()
         vc.viewModel = viewModel
         vc.layoutModel = .init()
         return vc
     }
     
-    public override func viewDidLoad() {
+    override func viewDidLoad() {
         super.viewDidLoad()
         
         
@@ -108,7 +108,7 @@ public class AroundViewController: UIViewController {
     }
     
     
-    public override func viewDidAppear(_ animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
     }
     

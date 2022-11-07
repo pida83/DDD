@@ -9,22 +9,22 @@
 
 import UIKit
 
-public protocol AroundCoordinatorDependencies {
+protocol AroundCoordinatorDependencies {
     func makeAroundViewController() -> AroundViewController
 }
 
-public class AroundCoordinator: Coordinator {
+class AroundCoordinator: Coordinator {
     
-    public var childCoordinator : [Coordinator] = .init()
+    var childCoordinator : [Coordinator] = .init()
     var navigationController : UINavigationController
     var dependencies : AroundCoordinatorDependencies
     
-    public init(navigationController: UINavigationController, dependencies: AroundCoordinatorDependencies) {
+    init(navigationController: UINavigationController, dependencies: AroundCoordinatorDependencies) {
         self.navigationController = navigationController
         self.dependencies         = dependencies
     }
     
-    public func start() {
+    func start() {
         let aroundVC = self.dependencies.makeAroundViewController()
         self.navigationController.pushViewController(aroundVC, animated: false)
     }

@@ -9,17 +9,17 @@
 import UIKit
 import SnapKit
 
-public class CommonMenuBar: UIView {
+class CommonMenuBar: UIView {
     
     lazy var btn : UIButton = UIButton(type: .contactAdd).then{
         $0.setTitle("button", for: .normal)
     }
     
-    required public init?(coder: NSCoder) {
+    required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
     
-    public override init(frame: CGRect) {
+    override init(frame: CGRect) {
         super.init(frame: frame)
         
         
@@ -32,7 +32,7 @@ public class CommonMenuBar: UIView {
     }
     
     // #2
-    public override func willMove(toWindow newWindow: UIWindow?) {
+    override func willMove(toWindow newWindow: UIWindow?) {
         if newWindow == nil {
             print("::: disapear ")
         } else {
@@ -41,12 +41,12 @@ public class CommonMenuBar: UIView {
     }
 
     // #3
-    public override func willMove(toSuperview newSuperview: UIView?) {
+    override func willMove(toSuperview newSuperview: UIView?) {
     }
     
     // #4
     
-    public override func didMoveToWindow() {
+    override func didMoveToWindow() {
         self.backgroundColor = .yellow
         
         self.snp.makeConstraints {
@@ -66,7 +66,7 @@ public class CommonMenuBar: UIView {
     
     
     // #6
-    public override func didMoveToSuperview() {
+    override func didMoveToSuperview() {
         print("subview::didMoveToSuperview")
     }
 }

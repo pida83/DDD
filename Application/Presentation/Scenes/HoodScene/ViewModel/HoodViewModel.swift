@@ -74,6 +74,7 @@ class DefaultHoodViewModel: HoodViewModel {
             $0["symbol"].stringValue.lowercased() + "@aggTrade"
         }
         self.map = map
+        print(self.map)
         connect()
 //        let symbol = list.removeFirst()["symbol"].stringValue
 //        self.selected = symbol
@@ -95,7 +96,7 @@ class DefaultHoodViewModel: HoodViewModel {
         
 //        self.socket.append(socket)
         self.combineSocket = socket
-        Timer.scheduledTimer(withTimeInterval: 2, repeats: false, block: disconnect(timer:))
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: false, block: disconnect(timer:))
     }
     
     func disconnect(timer: Timer? = nil) {
@@ -139,14 +140,13 @@ extension DefaultHoodViewModel {
                     }.map{$1}
                      .sorted(by: {$0["quoteVolume"].floatValue > $1["quoteVolume"].floatValue })
                     self?.list = ticker[0 ... 14].map{$0}
-                    
 //                    self?.listProcess()
                 }
             }
     }
 }
 extension DefaultHoodViewModel: WebSocketDelegate {
-    public func didReceive(event: Starscream.WebSocketEvent, client: Starscream.WebSocket) {
+    func didReceive(event: Starscream.WebSocketEvent, client: Starscream.WebSocket) {
         switch event {
             case .connected(let headers):
                 self.isConnected = true
@@ -190,7 +190,7 @@ extension DefaultHoodViewModel: WebSocketDelegate {
         if data["result"].exists() {
             return
         }
-        
+        print(data)
         if self.stateData[data["s"].stringValue] == nil {
             self.stateData[data["s"].stringValue] = .init()
             self.stateData[data["s"].stringValue]?.update(data: data)
