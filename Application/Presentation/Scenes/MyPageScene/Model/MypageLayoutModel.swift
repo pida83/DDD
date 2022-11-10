@@ -16,6 +16,7 @@ import RxGesture
 struct MypageAction {
     var cancelAction : (()-> Void)
     var confirmAction : (()-> Void)
+    var scrollToBottomAction : (()-> Void)
 }
 
 class MypageLayoutModel {
@@ -44,6 +45,19 @@ class MypageLayoutModel {
         $0.frame = .init(x: 0, y: 0, width: 70, height: 40)
     }
     
+    var downBtn: UIView = .init(frame:.zero).then{
+        $0.backgroundColor = .gray
+        $0.frame = .init(x: 0, y: 0, width: 70, height: 40)
+    }
+    var downText: UILabel = .init(frame: .zero).then{
+        $0.font = .boldSystemFont(ofSize: 15)
+        $0.textColor = .white
+        $0.backgroundColor = .clear
+        $0.text = "밑으로"
+        $0.isUserInteractionEnabled = false
+        $0.textAlignment = .center
+    }
+    
     var confirmText: UILabel = .init(frame: .zero).then{
         $0.font = .boldSystemFont(ofSize: 15)
         $0.textColor = .white
@@ -52,6 +66,7 @@ class MypageLayoutModel {
         $0.isUserInteractionEnabled = false
         $0.textAlignment = .center
     }
+    
     var cancelText: UILabel = .init(frame: .zero).then{
         $0.font = .boldSystemFont(ofSize: 15)
         $0.backgroundColor = .clear
@@ -110,8 +125,11 @@ class MypageLayoutModel {
         parentView.addSubview(self.inputView)
         parentView.addSubview(self.cancel)
         parentView.addSubview(self.confirm)
+        parentView.addSubview(self.downBtn)
+        
         confirm.addSubview(confirmText)
         cancel.addSubview(cancelText)
+        downBtn.addSubview(downText)
         parentView.addSubview(self.nameText)
     }
     
@@ -137,13 +155,13 @@ class MypageLayoutModel {
         textField.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.width.equalToSuperview()
-            $0.height.equalToSuperview().dividedBy(4)
+            $0.height.equalToSuperview().dividedBy(6)
         }
         
         mainTable.snp.makeConstraints {
             $0.width.equalToSuperview()
             $0.top.equalTo(textField.snp.bottom)
-            $0.bottom.equalToSuperview()
+            $0.bottom.equalToSuperview().offset(-150)
         }
         
         cancel.snp.makeConstraints{
@@ -159,7 +177,12 @@ class MypageLayoutModel {
             $0.right.equalToSuperview().offset(-10)
             $0.bottom.equalToSuperview().offset(-100)
         }
-        
+        downBtn.snp.makeConstraints{
+            $0.width.equalTo(70)
+            $0.height.equalTo(40)
+            $0.right.equalToSuperview().offset(-10)
+            $0.top.equalTo(confirm.snp.bottom)
+        }
         inputView.snp.makeConstraints{
             $0.width.equalToSuperview()
             $0.height.equalTo(150)
@@ -171,6 +194,10 @@ class MypageLayoutModel {
         }
         
         cancelText.snp.makeConstraints{
+            $0.edges.equalToSuperview()
+        }
+        
+        downText.snp.makeConstraints{
             $0.edges.equalToSuperview()
         }
         
@@ -202,6 +229,15 @@ class MypageLayoutModel {
             .subscribe(onNext: { [weak self]  _ in
                 // 약한참조 처리
                 self?.action?.cancelAction()
+            })
+            .disposed(by: disposeBag)
+        
+        self.downBtn.rx.tapGesture()
+            .throttle(.microseconds(500), latest: false, scheduler: MainScheduler.instance)
+            .when(.recognized)
+            .subscribe(onNext: { [weak self]  _ in
+                // 약한참조 처리
+                self?.action?.scrollToBottomAction()
             })
             .disposed(by: disposeBag)
         

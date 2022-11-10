@@ -32,6 +32,7 @@ protocol MypageViewModelOutput {
     var output_name : PublishSubject<String> {get set}
     var data: [StreamModel] {get set}
     var lists : [String] {get set}
+    var didScroll : Bool {get set}
 }
 
 protocol MypageViewModel: MypageViewModelInput, MypageViewModelOutput {
@@ -44,7 +45,7 @@ class DefaultMypageViewModel: MypageViewModel {
     var output_didUpdate : PublishSubject<Bool> = .init()
     var output_didUpdateList : PublishSubject<Bool> = .init()
     var output_name: PublishSubject<String> = .init()
-    
+    var didScroll: Bool = false
     var lists : [String] = .init() {
         didSet {
             output_didUpdateList.onNext(true)
@@ -78,7 +79,7 @@ class DefaultMypageViewModel: MypageViewModel {
     init() {
         
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [weak self] timers in
-            if self!.data.count > 7 {
+            if self!.data.count > 60 * 60 {
                 self!.data.removeFirst()
             }
             
@@ -243,11 +244,11 @@ struct StreamModel {
         }
     }
     
-    fileprivate mutating func setSum(_ isBuyer: Bool, _ isRaiseUp: Bool) {
+    fileprivate mutating func setSum(_ isBuyer: Bool , _ data: JSON) {
         if isBuyer {
-            sum -= !isRaiseUp ? 2 : 1
+            sum += data["q"].intValue
         }else {
-            sum += isRaiseUp ? 2 : 1
+            sum -= data["q"].intValue
         }
     }
     
@@ -260,7 +261,7 @@ struct StreamModel {
         
         setUpAndDown(isRaiseUp: isRaiseUp)
         
-        setSum(data["m"].boolValue, isRaiseUp)
+        setSum(data["m"].boolValue, data)
         
         self.lastPrice  = data["p"].intValue
         
@@ -271,7 +272,7 @@ struct StreamModel {
     mutating func appendDps() {
         self.dpsDatas.append(self.dps)
         
-        if dpsDatas.count > 10 {
+        if dpsDatas.count > 60 * 60 {
             dpsDatas.removeFirst()
         }
         

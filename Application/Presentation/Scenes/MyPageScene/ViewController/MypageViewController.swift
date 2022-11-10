@@ -11,6 +11,10 @@ import Alamofire
 import RxSwift
 
 class MypageViewController: UIViewController {
+    // TODO: 그래프
+    // TODO: UI 디자인 및 이펙트 추가
+    // TODO: 모델 및 유즈케이스 정리
+    
     
     var viewModel: MypageViewModel!
     var layoutModel: MypageLayoutModel!
@@ -29,7 +33,7 @@ class MypageViewController: UIViewController {
         bind(to: viewModel)
         viewModel.viewDidLoad()
         layoutModel.viewDidLoad(parent: self.view)
-        layoutModel.action = MypageAction(cancelAction: self.cancelAction, confirmAction: self.confirmAction)
+        layoutModel.action = MypageAction(cancelAction: self.cancelAction, confirmAction: self.confirmAction, scrollToBottomAction: self.scrollToBottom)
         
 //        layoutModel.coinPicker.delegate = self
 //        layoutModel.coinPicker.dataSource = self
@@ -46,7 +50,9 @@ class MypageViewController: UIViewController {
         // 테이블 채널 1초 딜레이
         viewModel.output_didUpdate.subscribe(onNext: {[weak self] _ in
             self?.layoutModel.mainTable.reloadData()
-            self?.layoutModel.mainTable.scrollToBottom(animated: false)
+            if !viewModel.didScroll {
+                self?.layoutModel.mainTable.scrollToBottom(animated: false)
+            }
         }).disposed(by: disposeBag)
         
         // 피커뷰
@@ -64,6 +70,7 @@ class MypageViewController: UIViewController {
         addKeyboardNotifications()
         layoutModel.mainTable.delegate = self
         layoutModel.mainTable.dataSource = self
+        layoutModel.mainTable.dragDelegate = self
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -129,6 +136,11 @@ class MypageViewController: UIViewController {
         }
         self.cancelAction()
     }
+    
+    func scrollToBottom(){
+        self.viewModel.didScroll = false
+        self.layoutModel.mainTable.scrollToBottom(animated: false)
+    }
 }
 
 extension MypageViewController: UITableViewDataSource {
@@ -191,3 +203,12 @@ extension MypageViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     
 }
     
+extension MypageViewController: UITableViewDragDelegate {
+    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        []
+    }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        viewModel.didScroll = true
+    }
+}
