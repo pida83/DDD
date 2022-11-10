@@ -110,7 +110,7 @@ class MypageTableCell: UITableViewCell {
         let strength   = String(repeating: "*", count: data.strength).leftPadding(toLength: 5, withPad: "  ")
         
         let check     = "\(data.sum > data.average ? "+" : "")"
-        let outputText = "[\(data.lastPrice)] [d:\(dps)] [b:\(data.upCnt)] [av:\(average) \(strength)]"
+        let outputText = "[\(data.lastPrice)] [b:\(data.upCnt)] [av:\(average) \(strength)] [d:\(dps)]"
         
         layoutModel.commentLabel.text = outputText
         layoutModel.commentLabel.textColor = data.sum < 1 ? .red : .white
