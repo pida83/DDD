@@ -236,16 +236,16 @@ struct StreamModel {
         }
         
     }
-    mutating func setUpAndDown(isRaiseUp : Bool) {
-        if isRaiseUp {
-            upCnt += 1
-        } else {
-            downCnt += 1
-        }
+    mutating func setUpAndDown(_ data: JSON) {
+        upCnt += data["q"].intValue
     }
     
-    fileprivate mutating func setSum(_ isBuyer: Bool , _ data: JSON) {
-        upCnt += data["q"].intValue
+    fileprivate mutating func setSum(_ isBuyer: Bool, _ isRaiseUp: Bool) {
+        if isBuyer {
+            sum -= !isRaiseUp ? 2 : 1
+        }else {
+            sum += isRaiseUp ? 2 : 1
+        }
     }
     
     mutating func update(data: JSON) -> StreamModel {
@@ -255,9 +255,9 @@ struct StreamModel {
         
         let isRaiseUp = data["p"].intValue > self.lastPrice
         
-//        setUpAndDown(isRaiseUp: isRaiseUp)
+        setUpAndDown(data)
         
-        setSum(data["m"].boolValue, data)
+        setSum(data["m"].boolValue, isRaiseUp)
         
         self.lastPrice  = data["p"].intValue
         
