@@ -218,7 +218,7 @@ struct StreamModel {
     @FloorNumber var sum : Int          = 0
                  var dpsDatas : [Int] = []
     @FloorNumber var average: Int = 0
-    @FloorNumber var lastPrice: Int = 0
+    var lastPrice: Float = 0
      var strength: Int = 0
     
     mutating func addDPS (){
@@ -256,13 +256,13 @@ struct StreamModel {
         
         addStrenth()
         
-        let isRaiseUp = data["p"].intValue > self.lastPrice
+        let isRaiseUp = data["p"].floatValue > self.lastPrice
         
         setUpAndDown(data)
         
         setSum(data["m"].boolValue, isRaiseUp)
         
-        self.lastPrice  = data["p"].intValue
+        self.lastPrice  = data["p"].floatValue
         
         return self
         
