@@ -236,8 +236,11 @@ struct StreamModel {
         }
         
     }
+    
     mutating func setUpAndDown(_ data: JSON) {
-        upCnt += data["q"].intValue
+        if data["m"].boolValue {
+            upCnt += data["q"].intValue
+        }
     }
     
     fileprivate mutating func setSum(_ isBuyer: Bool, _ isRaiseUp: Bool) {

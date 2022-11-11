@@ -144,7 +144,7 @@ extension HoodViewController: UITableViewDataSource {
         let data    =  viewModel.dataList[indexPath.row]
         let row        = indexPath.row
         
-        cell.setData(data: data.value, name: data.key)
+        cell.setData(data: data.value, name: data.key, markName: true)
         return cell
     }
 }

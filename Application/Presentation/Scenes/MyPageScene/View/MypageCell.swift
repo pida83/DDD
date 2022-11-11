@@ -100,7 +100,7 @@ class MypageTableCell: UITableViewCell {
         
     }
     
-    func setData(data: StreamModel, name: String) {
+    func setData(data: StreamModel, name: String, markName: Bool = false) {
 //        layoutModel.cellHeight = height
         
         model = data
@@ -110,7 +110,7 @@ class MypageTableCell: UITableViewCell {
         let strength   = String(repeating: "*", count: data.strength).leftPadding(toLength: 5, withPad: "  ")
         
         let check     = "\(data.sum > data.average ? "+" : "")"
-        let outputText = "[\(data.lastPrice)] [b:\(data.upCnt)] [av:\(average) \(strength)] [d:\(dps)]"
+        let outputText = "\(markName ? "[\(name)]" : "" ) [\(data.lastPrice)] [b:\(data.upCnt)] [d:\(dps)] [av:\(average) \(strength)] "
         
         layoutModel.commentLabel.text = outputText
         layoutModel.commentLabel.textColor = data.sum < 1 ? .red : .white
