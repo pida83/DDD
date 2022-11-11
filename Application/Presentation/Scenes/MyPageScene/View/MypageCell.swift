@@ -18,7 +18,7 @@ struct MypageCellLayoutModel {
 //    }
     let commentLabel: UILabel  = .init(frame: .zero).then{
         $0.backgroundColor = .clear
-        $0.font = UIFont.systemFont(ofSize: 18)
+        $0.font = UIFont.systemFont(ofSize: 14)
         $0.textColor = .white
         $0.textAlignment = .left
     }
@@ -108,9 +108,9 @@ class MypageTableCell: UITableViewCell {
         let dps       = "\(data.dps)".leftPadding(toLength: 5, withPad: "  ")
         let average   = "\(data.average)".leftPadding(toLength: 5, withPad: "  ")
         let strength   = String(repeating: "*", count: data.strength).leftPadding(toLength: 5, withPad: "  ")
-        
+        let coinName = markName ? name.components(separatedBy: "usdt").first : ""
         let check     = "\(data.sum > data.average ? "+" : "")"
-        let outputText = "\(markName ? "[\(name)]" : "" ) [\(data.lastPrice)] [b:\(data.upCnt)] [d:\(dps)] [av:\(average) \(strength)] "
+        let outputText = "\(coinName ?? "") [\(data.lastPrice)] [b:\(data.upCnt)] [d:\(dps)] [av:\(average) \(strength)] "
         
         layoutModel.commentLabel.text = outputText
         layoutModel.commentLabel.textColor = data.sum < 1 ? .red : .white
